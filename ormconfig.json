@@ -1,0 +1,24 @@
+{
+   "type": "postgres",
+   "host": "localhost",
+   "port": 5432,
+   "username": "lboberg",
+   "password": "",
+   "database": "delivery_dev",
+   "synchronize": true,
+   "logging": false,
+   "entities": [
+      "src/db/entities/**/*.ts"
+   ],
+   "migrations": [
+      "src/db/migrations/**/*.ts"
+   ],
+   "subscribers": [
+      "src/db/subscribers/**/*.ts"
+   ],
+   "cli": {
+      "entitiesDir": "src/db/entities",
+      "migrationsDir": "src/db/migrations",
+      "subscribersDir": "src/db/subscribers"
+   }
+}
