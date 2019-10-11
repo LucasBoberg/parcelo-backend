@@ -21,6 +21,7 @@
       "fastify-swagger": "^2.4.0",
       "pg": "^7.11.0",
       "reflect-metadata": "^0.1.13",
+      "slugify": "^1.3.5",
       "typeorm": "0.2.17"
    }
 }

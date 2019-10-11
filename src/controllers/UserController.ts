@@ -13,6 +13,17 @@ export async function getUsers(request, reply) {
   }
 }
 
+export async function getSingleUser(request, reply) {
+  try {
+    const id = request.params.id;
+    const userRepository = await getManager().getCustomRepository(UserRepository);
+    const user = await userRepository.findOne(id, { relations: ["addresses"] });
+    return user;
+  } catch (error) {
+    throw boom.boomify(error);
+  }
+}
+
 export async function signUp(request, reply) {
   /*const body = ctx.request.body;
   

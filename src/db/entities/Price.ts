@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, Column } from "typeorm";
+import { Entity, ManyToOne, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Shop } from './Shop';
 import { Product } from './Product';
 
@@ -15,4 +15,10 @@ export class Price {
 
     @ManyToOne(type => Product, product => product.prices, { primary: true, nullable: false})
     product: Product;
+
+    @CreateDateColumn() 
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

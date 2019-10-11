@@ -1,5 +1,5 @@
 import { HTTPMethod } from "fastify";
-import { getUsers, signUp } from "../controllers/UserController";
+import { getUsers, getSingleUser, signUp } from "../controllers/UserController";
 
 export const routes = [
   {
@@ -10,6 +10,11 @@ export const routes = [
   {
     method: "GET" as HTTPMethod,
     url: '/api/users/:id',
-    handler: getUsers
+    handler: getSingleUser
+  },
+  {
+    method: "POST" as HTTPMethod,
+    url: '/api/users',
+    handler: signUp
   }
 ];

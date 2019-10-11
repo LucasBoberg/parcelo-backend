@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany } from "typeorm";
 import { Matches } from "class-validator";
 import { Product } from "./Product";
 
@@ -20,4 +20,10 @@ export class Category {
 
     @ManyToMany(type => Product, product => product.categories)
     products: Product[];
+
+    @CreateDateColumn() 
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }
