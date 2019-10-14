@@ -1,5 +1,5 @@
 import { HTTPMethod } from "fastify";
-import { getProducts, getSingleProduct, addProduct } from "../controllers/ProductsController";
+import { getProducts, getSingleProduct, addProduct, updateProduct, deleteProduct } from "../controllers/ProductsController";
 
 export const productRoutes = [
   {
@@ -16,5 +16,15 @@ export const productRoutes = [
     method: "POST" as HTTPMethod,
     url: '/api/products',
     handler: addProduct
+  },
+  {
+    method: "PUT" as HTTPMethod,
+    url: '/api/products/:id',
+    handler: updateProduct
+  },
+  {
+    method: "DELETE" as HTTPMethod,
+    url: '/api/products/:id',
+    handler: deleteProduct
   }
 ];

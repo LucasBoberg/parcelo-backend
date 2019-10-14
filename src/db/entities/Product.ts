@@ -44,11 +44,11 @@ export class Product {
     @Column()
     weight: number;
 
-    @Column()
-    images: string;
+    @Column("simple-array")
+    images: string[];
 
-    @Column()
-    alternatives: string;
+    @Column("simple-array")
+    alternatives: string[];
 
     @Column()
     barcode: string;
