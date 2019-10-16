@@ -44,6 +44,18 @@ export async function getSingleProduct(request, reply) {
   }
 }
 
+export async function getSingleProductByBarcode(request, reply) {
+  try {
+    const barcode = request.params.barcode;
+    const productRepository = await getManager().getCustomRepository(ProductRepository);
+    const product = await productRepository.findByBarcode(barcode);
+  
+    return product;
+  } catch (error) {
+    throw boom.boomify(error);
+  }
+}
+
 export async function addProduct(request, reply) {
   try {
     const productRepository = await getManager().getCustomRepository(ProductRepository);

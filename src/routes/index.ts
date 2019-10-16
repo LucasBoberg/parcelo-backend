@@ -5,16 +5,25 @@ export const routes = [
   {
     method: "GET" as HTTPMethod,
     url: '/api/users',
-    handler: getUsers
+    handler: getUsers,
+    schema: {
+      tags: ["user"]
+    }
   },
   {
     method: "GET" as HTTPMethod,
     url: '/api/users/:id',
-    handler: getSingleUser
+    handler: getSingleUser,
+    schema: {
+      tags: ["user"]
+    }
   },
   {
     method: "POST" as HTTPMethod,
     url: '/api/users',
-    handler: signUp
+    handler: signUp,
+    schema: {
+      tags: ["user"]
+    }
   }
 ];

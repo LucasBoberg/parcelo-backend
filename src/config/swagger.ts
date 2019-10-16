@@ -10,6 +10,10 @@ export const swaggerOptions = {
     host: 'localhost/api',
     schemes: ['http'],
     consumes: ['application/json'],
-    produces: ['application/json']
+    produces: ['application/json'],
+    tags: [
+      { name: 'user', description: 'User related end-points' },
+      { name: 'product', description: 'Product related end-points' }
+    ],
   }
 }

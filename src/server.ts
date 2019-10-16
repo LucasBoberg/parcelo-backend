@@ -7,14 +7,15 @@ import { productRoutes } from "./routes/products";
 import { swaggerOptions } from "./config/swagger";
 import * as fastify from 'fastify';
 import * as fastifySwagger from 'fastify-swagger';
+import * as fastifyHelmet from 'fastify-helmet';
 
 const PORT = parseInt(process.env.PORT) || 3000;
 
 const server: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> = fastify({
     logger: true
 });
-
-server.register(fastifySwagger, swaggerOptions)
+server.register(fastifyHelmet);
+server.register(fastifySwagger, swaggerOptions);
 
 routes.forEach((route, index) => {
     server.route(route);
