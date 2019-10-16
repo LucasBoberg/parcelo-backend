@@ -12,7 +12,7 @@ import * as fastifyHelmet from 'fastify-helmet';
 const PORT = parseInt(process.env.PORT) || 3000;
 
 const server: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> = fastify({
-    logger: true
+    logger: { prettyPrint: true }
 });
 server.register(fastifyHelmet);
 server.register(fastifySwagger, swaggerOptions);
