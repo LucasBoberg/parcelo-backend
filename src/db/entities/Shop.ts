@@ -11,7 +11,7 @@ export class Shop {
     id: number;
 
     @Column()
-    @Matches(new RegExp('^[a-z][a-z\-]*[a-z]$'))
+    @Matches(new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$'))
     slug: string;
 
     @Column()

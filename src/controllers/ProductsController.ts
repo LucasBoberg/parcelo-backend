@@ -1,13 +1,16 @@
 import * as boom from "@hapi/boom";
 import { getManager } from "typeorm";
+import { validate } from "class-validator";
 import { Product } from "../db/entities/Product";
+import { Category } from "../db/entities/Category";
 import { ProductRepository } from "../db/repositories/ProductRepository";
+import { CategoryRepository } from "../db/repositories/CategoryRepository";
 import slugify from "slugify";
 
 export async function getProducts(request, reply) {
   try {
     const productRepository = await getManager().getCustomRepository(ProductRepository);
-    const products = await productRepository.find({ relations: ["categories"] });
+    const products = await productRepository.find({ relations: ["categories", "prices", "reviews"] });
     return products;
   } catch (error) {
     throw boom.boomify(error);
@@ -18,7 +21,7 @@ export async function getSingleProduct(request, reply) {
   try {
     const id = request.params.id;
     const productRepository = await getManager().getCustomRepository(ProductRepository);
-    const product = await productRepository.findOne(id, { relations: ["categories", "prices", "reviews"] });
+    const product = await productRepository.findOneOrFail(id, { relations: ["categories", "prices", "reviews"] });
     const productAlternatives = await productRepository.findByIds(product.alternatives, { select: ["id", "slug", "name", "manufacturer", "description", "images"] });
     const completeProduct = {
       id: product.id,
@@ -33,6 +36,9 @@ export async function getSingleProduct(request, reply) {
       weight: product.weight,
       images: product.images,
       alternatives: productAlternatives,
+      categories: product.categories,
+      prices: product.prices,
+      reviews: product.reviews,
       barcode: product.barcode,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt
@@ -59,7 +65,20 @@ export async function getSingleProductByBarcode(request, reply) {
 export async function addProduct(request, reply) {
   try {
     const productRepository = await getManager().getCustomRepository(ProductRepository);
+    const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
     const body = request.body;
+    const categories = body.categories;
+    let createdCategories: Category[] = [];
+
+    await categories.forEach((categoryInformation) => {
+      const category = new Category();
+      category.name = categoryInformation.name;
+      category.slug = slugify(categoryInformation.name, {lower: true, remove: /[*+~.()'"!:@]/g});
+      category.description = categoryInformation.description;
+      categoryRepository.save(category)
+      createdCategories.push(category);
+    });
+
     const product = new Product();
     product.name = body.name;
     product.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
@@ -73,7 +92,14 @@ export async function addProduct(request, reply) {
     product.images = body.images;
     product.alternatives = body.alternatives;
     product.barcode = body.barcode;
-    await productRepository.save(product);
+    product.categories = createdCategories;
+
+    const errors = await validate(product);
+    if (errors.length > 0) {
+      throw new Error(errors.toString()); 
+    } else {
+      await productRepository.save(product);
+    }
     
     return product;
   } catch (error) {
@@ -85,53 +111,77 @@ export async function updateProduct(request, reply) {
   try {
     const id = request.params.id;
     const productRepository = await getManager().getCustomRepository(ProductRepository);
+    const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
     const body = request.body;
-    let updatedValues = {}
+    const productData: Product = await productRepository.findOne(id);
+    let createdCategories: Category[] = [];
+    if (body.categories != undefined || body.categories != null) {
+      const categories = body.categories;
+
+      await categories.forEach((categoryInformation) => {
+        const category = new Category();
+        category.name = categoryInformation.name;
+        category.slug = slugify(categoryInformation.name, {lower: true, remove: /[*+~.()'"!:@]/g});
+        category.description = categoryInformation.description;
+        categoryRepository.save(category)
+        createdCategories.push(category);
+      });
+    }
+    
+
+    if (createdCategories.length > 0) {
+      productData.categories = createdCategories;
+    }
 
     if (body.name != null) {
-      updatedValues["name"] = body.name;
-      updatedValues["slug"] = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});;
+      productData.name = body.name;
+      productData.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});;
     }
 
     if (body.serialNumber != null) {
-      updatedValues["serialNumber"] = body.serialNumber;
+      productData.serialNumber = body.serialNumber;
     } 
 
     if (body.manufacturer != null) {
-      updatedValues["manufacturer"] = body.manufacturer;
+      productData.manufacturer = body.manufacturer;
     }
 
     if (body.description != null) {
-      updatedValues["description"] = body.description;
+      productData.description = body.description;
     } 
 
     if (body.width != null) {
-      updatedValues["width"] = parseFloat(body.width);
+      productData.width = parseFloat(body.width);
     } 
     if (body.height != null) {
-      updatedValues["height"] = parseFloat(body.height);
+      productData.height = parseFloat(body.height);
     } 
     if (body.depth != null) {
-      updatedValues["depth"] = parseFloat(body.depth);
+      productData.depth = parseFloat(body.depth);
     } 
     if (body.weight != null) {
-      updatedValues["weight"] = parseFloat(body.weight);
+      productData.weight = parseFloat(body.weight);
     }
 
     if (body.images != null) {
-      updatedValues["images"] = body.images;
+      productData.images = body.images;
     } 
 
     if (body.alternatives != null) {
-      updatedValues["alternatives"] = body.alternatives;
+      productData.alternatives = body.alternatives;
     } 
 
     if (body.barcode != null) {
-      updatedValues["barcode"] = body.barcode;
+      productData.barcode = body.barcode;
     }
-    await productRepository.update(id, updatedValues);
-    
-    return updatedValues;
+    const errors = await validate(productData);
+    if (errors.length > 0) {
+      throw new Error(errors.toString()); 
+    } else {
+      await productRepository.save(productData);
+    }
+
+    return productData;
   } catch (error) {
     throw boom.boomify(error);
   }

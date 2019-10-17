@@ -1,13 +1,11 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, Repository, FindOneOptions } from "typeorm";
 import { Product } from "../entities/Product";
 
 @EntityRepository(Product)
 export class ProductRepository extends Repository<Product> {
 
-  findByBarcode(barcode: string) {
-    return this.createQueryBuilder("product")
-      .where("product.barcode = :barcode", { barcode })
-      .getOne();
+  findByBarcode(barcode: string, options?: FindOneOptions<Product>): Promise<Product|undefined> {
+    return this.findOne({ barcode }, options);
   }
   
 }

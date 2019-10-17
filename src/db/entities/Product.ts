@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToMany, JoinTable } from "typeorm";
-import { Matches } from "class-validator";
+import { Matches, IsUUID } from "class-validator";
 import { Category } from "./Category";
 import { Price } from './Price';
 import { ProductReview } from './ProductReview';
@@ -11,7 +11,7 @@ export class Product {
     id: number;
 
     @Column()
-    @Matches(new RegExp('^[a-z][a-z\-]*[a-z]$'))
+    @Matches(new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$'))
     slug: string;
 
     @Column()
@@ -48,6 +48,7 @@ export class Product {
     images: string[];
 
     @Column("simple-array")
+    @IsUUID("4", {each: true})
     alternatives: string[];
 
     @Column()
