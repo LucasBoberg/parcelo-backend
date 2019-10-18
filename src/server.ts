@@ -4,6 +4,7 @@ import { Server, IncomingMessage, ServerResponse } from "http";
 import { User } from "./db/entities/User";
 import { routes } from "./routes/index";
 import { productRoutes } from "./routes/products";
+import { categoryRoutes } from "./routes/categories";
 import { swaggerOptions } from "./config/swagger";
 import * as fastify from 'fastify';
 import * as fastifySwagger from 'fastify-swagger';
@@ -22,6 +23,10 @@ routes.forEach((route, index) => {
 });
 
 productRoutes.forEach((route, index) => {
+    server.route(route);
+});
+
+categoryRoutes.forEach((route, index) => {
     server.route(route);
 });
 
