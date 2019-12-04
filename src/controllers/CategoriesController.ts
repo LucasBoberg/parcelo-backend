@@ -39,7 +39,7 @@ export async function addCategory(request, reply) {
 
     const errors = await validate(category);
     if (errors.length > 0) {
-      throw new Error(errors.toString()); 
+      throw boom.boomify(new Error(errors.toString())); 
     } else {
       await categoryRepository.save(category);
     }
@@ -67,7 +67,7 @@ export async function updateCategory(request, reply) {
     } 
     const errors = await validate(categoryData);
     if (errors.length > 0) {
-      throw new Error(errors.toString()); 
+      throw boom.boomify(new Error(errors.toString())); 
     } else {
       await categoryRepository.save(categoryData);
     }

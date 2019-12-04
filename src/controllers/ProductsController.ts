@@ -96,7 +96,7 @@ export async function addProduct(request, reply) {
 
     const errors = await validate(product);
     if (errors.length > 0) {
-      throw new Error(errors.toString()); 
+      throw boom.boomify(new Error(errors.toString())); 
     } else {
       await productRepository.save(product);
     }
@@ -176,7 +176,7 @@ export async function updateProduct(request, reply) {
     }
     const errors = await validate(productData);
     if (errors.length > 0) {
-      throw new Error(errors.toString()); 
+      throw boom.boomify(new Error(errors.toString())); 
     } else {
       await productRepository.save(productData);
     }

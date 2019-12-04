@@ -3,6 +3,7 @@ import { Matches, IsUUID } from "class-validator";
 import { Category } from "./Category";
 import { Price } from './Price';
 import { ProductReview } from './ProductReview';
+import { MultiFunction } from "../../Utils/product";
 
 @Entity()
 export class Product {
@@ -25,6 +26,9 @@ export class Product {
 
     @Column()
     description: string;
+
+    @Column({ type: "enum", enum: MultiFunction, default: MultiFunction.COUNT })
+    multiFunction: MultiFunction
 
     @OneToMany(type => Price, price => price.product)
     prices: Price[];

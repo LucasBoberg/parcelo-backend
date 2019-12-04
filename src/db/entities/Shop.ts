@@ -3,6 +3,7 @@ import { Matches } from "class-validator";
 import { Address } from "./Address";
 import { Price } from './Price';
 import { ShopReview } from './ShopReview';
+import { ShopType } from "../../Utils/shop";
 
 @Entity()
 export class Shop {
@@ -19,6 +20,9 @@ export class Shop {
 
     @Column()
     description: string;
+
+    @Column({ type: "enum", enum: ShopType, default: ShopType.STORE })
+    type: ShopType
 
     @OneToMany(type => Price, price => price.shop)
     prices: Price[];

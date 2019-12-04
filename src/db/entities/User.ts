@@ -12,11 +12,7 @@ export class User {
     @PrimaryGeneratedColumn("uuid")
     id: number;
 
-    @Column({
-        type: "enum",
-        enum: UserRole,
-        default: UserRole.BUYER
-    })
+    @Column({ type: "enum", enum: UserRole, default: UserRole.BUYER })
     role: UserRole
 
     @Column()
