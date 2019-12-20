@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Double } from "typeorm";
 
 @Entity()
 export class Address {
@@ -20,6 +20,12 @@ export class Address {
 
     @Column()
     country: string;
+
+    @Column()
+    latitude: Double;
+
+    @Column()
+    longitude: Double;
 
     @CreateDateColumn() 
     createdAt: Date;
