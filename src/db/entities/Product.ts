@@ -3,7 +3,7 @@ import { Matches, IsUUID } from "class-validator";
 import { Category } from "./Category";
 import { Price } from './Price';
 import { ProductReview } from './ProductReview';
-import { MultiFunction } from "../../Utils/product";
+import { MultiFunction, Color } from "../../Utils/product";
 
 @Entity()
 export class Product {
@@ -26,6 +26,9 @@ export class Product {
 
     @Column()
     description: string;
+
+    @Column({ type: "enum", enum: Color, default: Color.WHITE })
+    color: Color
 
     @Column({ type: "enum", enum: MultiFunction, default: MultiFunction.COUNT })
     multiFunction: MultiFunction

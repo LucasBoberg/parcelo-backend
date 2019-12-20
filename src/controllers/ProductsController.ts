@@ -30,6 +30,8 @@ export async function getSingleProduct(request, reply) {
       serialNumber: product.serialNumber,
       manufacturer: product.manufacturer,
       description: product.description,
+      color: product.color,
+      multiFunction: product.multiFunction,
       width: product.width,
       height: product.height,
       depth: product.depth,
@@ -85,6 +87,8 @@ export async function addProduct(request, reply) {
     product.serialNumber = body.serialNumber;
     product.manufacturer = body.manufacturer;
     product.description = body.description;
+    product.color = body.color;
+    product.multiFunction = body.multiFunction;
     product.width = parseFloat(body.width);
     product.height = parseFloat(body.height);
     product.depth = parseFloat(body.depth);
@@ -148,6 +152,14 @@ export async function updateProduct(request, reply) {
 
     if (body.description != null) {
       productData.description = body.description;
+    }
+
+    if (body.color != null) {
+      productData.color = body.color;
+    } 
+    
+    if (body.multiFunction != null) {
+      productData.multiFunction = body.multiFunction;
     } 
 
     if (body.width != null) {
