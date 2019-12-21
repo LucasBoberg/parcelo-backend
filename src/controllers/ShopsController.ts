@@ -6,6 +6,7 @@ import { Address } from "../db/entities/Address";
 import { ShopRepository } from "../db/repositories/ShopRepository";
 import { AddressRepository } from "../db/repositories/AddressRepository";
 import slugify from "slugify";
+import { priceRoutes } from "../routes/prices";
 
 export async function getShops(request, reply) {
   try {
@@ -21,9 +22,41 @@ export async function getSingleShop(request, reply) {
   try {
     const id = request.params.id;
     const shopRepository = await getManager().getCustomRepository(ShopRepository);
-    const shop = await shopRepository.findOneOrFail(id, { relations: ["prices", "reviews", "addresses"] });
+    const shop = await shopRepository.findOneOrFail(id, { relations: ["prices", "prices.product", "reviews", "addresses"] });
+
+    let completePrices = [];
+
+    if (shop.prices.length > 0) {
+      await shop.prices.forEach((priceInformation) => {
+        const priceObject = {
+          price: priceInformation.price,
+          currency: priceInformation.currency,
+          product: {
+            id: priceInformation.product.id,
+            slug: priceInformation.product.slug,
+            name: priceInformation.product.name,
+            serialNumber: priceInformation.product.serialNumber,
+            manufacturer: priceInformation.product.manufacturer,
+            description: priceInformation.product.description,
+            image: priceInformation.product.images[0]
+          },
+          createdAt: priceInformation.createdAt,
+          updatedAt: priceInformation.updatedAt
+        }
+        completePrices.push(priceObject)
+      });
+    }
+
+    const completeShop = {
+      id: shop.id,
+      slug: shop.slug,
+      name: shop.name,
+      description: shop.description,
+      type: shop.type,
+      prices: completePrices
+    }
   
-    return shop;
+    return completeShop;
   } catch (error) {
     throw boom.boomify(error);
   }
@@ -98,7 +131,7 @@ export async function updateShop(request, reply) {
 
     if (body.name != null) {
       shopData.name = body.name;
-      shopData.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});;
+      shopData.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
     }
 
     if (body.description != null) {

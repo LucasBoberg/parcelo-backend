@@ -1,7 +1,7 @@
 import { HTTPMethod } from "fastify";
 import { getShops, getSingleShop, addShop, updateShop, deleteShop } from "../controllers/ShopsController";
 
-export const productRoutes = [
+export const shopRoutes = [
   {
     method: "GET" as HTTPMethod,
     url: '/api/shops',

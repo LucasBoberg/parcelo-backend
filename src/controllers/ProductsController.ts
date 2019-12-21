@@ -21,8 +21,30 @@ export async function getSingleProduct(request, reply) {
   try {
     const id = request.params.id;
     const productRepository = await getManager().getCustomRepository(ProductRepository);
-    const product = await productRepository.findOneOrFail(id, { relations: ["categories", "prices", "reviews"] });
+    const product = await productRepository.findOneOrFail(id, { relations: ["categories", "prices", "prices.shop", "reviews"] });
     const productAlternatives = await productRepository.findByIds(product.alternatives, { select: ["id", "slug", "name", "manufacturer", "description", "images"] });
+    
+    let completePrices = [];
+
+    if (product.prices.length > 0) {
+      await product.prices.forEach((priceInformation) => {
+        const priceObject = {
+          price: priceInformation.price,
+          currency: priceInformation.currency,
+          shop: {
+            id: priceInformation.shop.id,
+            slug: priceInformation.shop.slug,
+            name: priceInformation.shop.name,
+            description: priceInformation.shop.description,
+            type: priceInformation.shop.type
+          },
+          createdAt: priceInformation.createdAt,
+          updatedAt: priceInformation.updatedAt
+        }
+        completePrices.push(priceObject)
+      });
+    }
+    
     const completeProduct = {
       id: product.id,
       slug: product.slug,
@@ -39,7 +61,7 @@ export async function getSingleProduct(request, reply) {
       images: product.images,
       alternatives: productAlternatives,
       categories: product.categories,
-      prices: product.prices,
+      prices: completePrices,
       reviews: product.reviews,
       barcode: product.barcode,
       createdAt: product.createdAt,
@@ -139,7 +161,7 @@ export async function updateProduct(request, reply) {
 
     if (body.name != null) {
       productData.name = body.name;
-      productData.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});;
+      productData.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
     }
 
     if (body.serialNumber != null) {

@@ -21,10 +21,10 @@ export class Address {
     @Column()
     country: string;
 
-    @Column()
+    @Column("double precision")
     latitude: Double;
 
-    @Column()
+    @Column("double precision")
     longitude: Double;
 
     @CreateDateColumn() 

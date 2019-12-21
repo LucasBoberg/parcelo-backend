@@ -59,7 +59,7 @@ export async function updateCategory(request, reply) {
 
     if (body.name != null) {
       categoryData.name = body.name;
-      categoryData.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});;
+      categoryData.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
     }
 
     if (body.description != null) {
