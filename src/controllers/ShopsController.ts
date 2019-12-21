@@ -53,6 +53,8 @@ export async function getSingleShop(request, reply) {
       name: shop.name,
       description: shop.description,
       type: shop.type,
+      logo: shop.logo,
+      banner: shop.banner,
       prices: completePrices
     }
   
@@ -86,6 +88,8 @@ export async function addShop(request, reply) {
     shop.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
     shop.description = body.description;
     shop.type = body.type;
+    shop.logo = body.logo;
+    shop.banner = body.banner;
     shop.addresses = createdAddresses;
 
     const errors = await validate(shop);
@@ -140,6 +144,13 @@ export async function updateShop(request, reply) {
 
     if (body.type != null) {
       shopData.type = body.type;
+    } 
+
+    if (body.logo != null) {
+      shopData.logo = body.logo;
+    } 
+    if (body.banner != null) {
+      shopData.banner = body.banner;
     } 
 
     const errors = await validate(shopData);

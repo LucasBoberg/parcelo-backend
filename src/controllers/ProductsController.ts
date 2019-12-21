@@ -36,7 +36,8 @@ export async function getSingleProduct(request, reply) {
             slug: priceInformation.shop.slug,
             name: priceInformation.shop.name,
             description: priceInformation.shop.description,
-            type: priceInformation.shop.type
+            type: priceInformation.shop.type,
+            logo: priceInformation.shop.logo
           },
           createdAt: priceInformation.createdAt,
           updatedAt: priceInformation.updatedAt

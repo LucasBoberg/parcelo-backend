@@ -21,6 +21,12 @@ export class Shop {
     @Column()
     description: string;
 
+    @Column()
+    logo: string;
+
+    @Column()
+    banner: string;
+
     @Column({ type: "enum", enum: ShopType, default: ShopType.STORE })
     type: ShopType
 
