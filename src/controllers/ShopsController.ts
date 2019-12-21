@@ -74,7 +74,7 @@ export async function updateShop(request, reply) {
     const shopRepository = await getManager().getCustomRepository(ShopRepository);
     const addressRepository = await getManager().getCustomRepository(AddressRepository);
     const body = request.body;
-    const shopData: Shop = await shopRepository.findOne(id);
+    const shopData: Shop = await shopRepository.findOneOrFail(id);
     let createdAddresses: Address[] = [];
 
     if (body.addresses != undefined || body.addresses != null) {
@@ -126,7 +126,7 @@ export async function deleteShop(request, reply) {
   try {
     const id = request.params.id;
     const shopRepository = await getManager().getCustomRepository(ShopRepository);
-    const shop = await shopRepository.findOne(id);
+    const shop = await shopRepository.findOneOrFail(id);
     await shopRepository.remove(shop);
     return { message: id + " was removed!" };
   } catch (error) {

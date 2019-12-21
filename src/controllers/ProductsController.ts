@@ -117,7 +117,7 @@ export async function updateProduct(request, reply) {
     const productRepository = await getManager().getCustomRepository(ProductRepository);
     const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
     const body = request.body;
-    const productData: Product = await productRepository.findOne(id);
+    const productData: Product = await productRepository.findOneOrFail(id);
     let createdCategories: Category[] = [];
     if (body.categories != undefined || body.categories != null) {
       const categories = body.categories;
@@ -203,7 +203,7 @@ export async function deleteProduct(request, reply) {
   try {
     const id = request.params.id;
     const productRepository = await getManager().getCustomRepository(ProductRepository);
-    const product = await productRepository.findOne(id);
+    const product = await productRepository.findOneOrFail(id);
     await productRepository.remove(product);
     return { message: id + " was removed!" };
   } catch (error) {

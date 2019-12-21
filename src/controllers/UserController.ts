@@ -17,7 +17,7 @@ export async function getSingleUser(request, reply) {
   try {
     const id = request.params.id;
     const userRepository = await getManager().getCustomRepository(UserRepository);
-    const user = await userRepository.findOne(id, { relations: ["addresses"] });
+    const user = await userRepository.findOneOrFail(id, { relations: ["addresses"] });
     return user;
   } catch (error) {
     throw boom.boomify(error);

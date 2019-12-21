@@ -55,7 +55,7 @@ export async function updateCategory(request, reply) {
     const slug = request.params.slug;
     const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
     const body = request.body;
-    const categoryData: Category = await categoryRepository.findOne(slug);
+    const categoryData: Category = await categoryRepository.findOneOrFail(slug);
 
     if (body.name != null) {
       categoryData.name = body.name;
@@ -82,7 +82,7 @@ export async function deleteCategory(request, reply) {
   try {
     const slug = request.params.slug;
     const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
-    const category = await categoryRepository.findOne(slug);
+    const category = await categoryRepository.findOneOrFail(slug);
     await categoryRepository.remove(category);
     return { message: slug + " was removed!" };
   } catch (error) {
