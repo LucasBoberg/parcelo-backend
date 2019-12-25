@@ -1,9 +1,12 @@
 import * as boom from "@hapi/boom";
 import { getManager } from "typeorm";
 import { validate } from "class-validator";
+import * as NodeGeoCoder from "node-geocoder";
+import { options } from "../Utils/geocoder";
 import { Address } from "../db/entities/Address";
 import { AddressRepository } from "../db/repositories/AddressRepository";
-import slugify from "slugify";
+
+const geocoder = NodeGeoCoder(options);
 
 export async function getAddresses(request, reply) {
   try {
@@ -30,15 +33,16 @@ export async function addAddress(request, reply) {
   try {
     const addressRepository = await getManager().getCustomRepository(AddressRepository);
     const body = request.body;
-
     const address = new Address();
+    const geocodeData = await geocoder.geocode({street: body.street, city: body.city, postalcode: body.postal, country: body.country});
+    
     address.name = body.name;
     address.street = body.street;
     address.postal = body.postal;
     address.city = body.city;
     address.country = body.country;
-    address.latitude = body.latitude;
-    address.longitude = body.longitude;
+    address.latitude = parseFloat(geocodeData[0].latitude);
+    address.longitude = parseFloat(geocodeData[0].longitude);
 
     const errors = await validate(address);
     if (errors.length > 0) {

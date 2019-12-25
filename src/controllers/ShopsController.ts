@@ -1,12 +1,14 @@
 import * as boom from "@hapi/boom";
 import { getManager } from "typeorm";
 import { validate } from "class-validator";
+import * as NodeGeoCoder from "node-geocoder";
+import { options } from "../Utils/geocoder";
 import { Shop } from "../db/entities/Shop";
 import { Address } from "../db/entities/Address";
 import { ShopRepository } from "../db/repositories/ShopRepository";
-import { AddressRepository } from "../db/repositories/AddressRepository";
 import slugify from "slugify";
-import { priceRoutes } from "../routes/prices";
+
+const geocoder = NodeGeoCoder(options);
 
 export async function getShops(request, reply) {
   try {
@@ -67,21 +69,7 @@ export async function getSingleShop(request, reply) {
 export async function addShop(request, reply) {
   try {
     const shopRepository = await getManager().getCustomRepository(ShopRepository);
-    const addressRepository = await getManager().getCustomRepository(AddressRepository);
     const body = request.body;
-    const addresses = body.addresses;
-    let createdAddresses: Address[] = [];
-
-    await addresses.forEach((addressInformation) => {
-      const address = new Address();
-      address.name = addressInformation.name;
-      address.street = addressInformation.street;
-      address.postal = addressInformation.postal;
-      address.city = addressInformation.city;
-      address.country = addressInformation.country;
-      addressRepository.save(address)
-      createdAddresses.push(address);
-    });
 
     const shop = new Shop();
     shop.name = body.name;
@@ -90,7 +78,7 @@ export async function addShop(request, reply) {
     shop.type = body.type;
     shop.logo = body.logo;
     shop.banner = body.banner;
-    shop.addresses = createdAddresses;
+    shop.addresses = [];
 
     const errors = await validate(shop);
     if (errors.length > 0) {
@@ -109,29 +97,8 @@ export async function updateShop(request, reply) {
   try {
     const id = request.params.id;
     const shopRepository = await getManager().getCustomRepository(ShopRepository);
-    const addressRepository = await getManager().getCustomRepository(AddressRepository);
     const body = request.body;
     const shopData: Shop = await shopRepository.findOneOrFail(id);
-    let createdAddresses: Address[] = [];
-
-    if (body.addresses != undefined || body.addresses != null) {
-      const addresses = body.addresses;
-
-      await addresses.forEach((addressInformation) => {
-        const address = new Address();
-        address.name = addressInformation.name;
-        address.street = addressInformation.street;
-        address.postal = addressInformation.postal;
-        address.city = addressInformation.city;
-        address.country = addressInformation.country;
-        addressRepository.save(address)
-        createdAddresses.push(address);
-      });
-    }
-
-    if (createdAddresses.length > 0) {
-      shopData.addresses = createdAddresses;
-    }
 
     if (body.name != null) {
       shopData.name = body.name;
