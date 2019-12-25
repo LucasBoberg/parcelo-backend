@@ -5,24 +5,24 @@ import { Product } from "./Product";
 @Entity()
 export class ProductReview {
 
-    @PrimaryGeneratedColumn("uuid")
-    id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: number;
 
-    @Column()
-    review: string;
+  @Column()
+  review: string;
 
-    @Column()
-    rating: number;
+  @Column()
+  rating: number;
 
-    @ManyToOne(type => Product, product => product.reviews)
-    product: Product;
+  @ManyToOne(type => Product, product => product.reviews)
+  product: Product;
 
-    @ManyToOne(type => User, user => user.productReviews)
-    user: User;
+  @ManyToOne(type => User, user => user.productReviews)
+  user: User;
 
-    @CreateDateColumn() 
-    createdAt: Date;
+  @CreateDateColumn() 
+  createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

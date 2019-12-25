@@ -8,41 +8,41 @@ import { ShopType } from "../../Utils/shop";
 @Entity()
 export class Shop {
 
-    @PrimaryGeneratedColumn("uuid")
-    id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: number;
 
-    @Column()
-    @Matches(new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$'))
-    slug: string;
+  @Column()
+  @Matches(new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$'))
+  slug: string;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column()
-    description: string;
+  @Column()
+  description: string;
 
-    @Column()
-    logo: string;
+  @Column()
+  logo: string;
 
-    @Column()
-    banner: string;
+  @Column()
+  banner: string;
 
-    @Column({ type: "enum", enum: ShopType, default: ShopType.STORE })
-    type: ShopType
+  @Column({ type: "enum", enum: ShopType, default: ShopType.STORE })
+  type: ShopType
 
-    @OneToMany(type => Price, price => price.shop)
-    prices: Price[];
+  @OneToMany(type => Price, price => price.shop)
+  prices: Price[];
 
-    @OneToMany(type => ShopReview, review => review.shop)
-    reviews: ShopReview[];
+  @OneToMany(type => ShopReview, review => review.shop)
+  reviews: ShopReview[];
 
-    @ManyToMany(type => Address)
-    @JoinTable()
-    addresses: Address[];
+  @ManyToMany(type => Address)
+  @JoinTable()
+  addresses: Address[];
 
-    @CreateDateColumn() 
-    createdAt: Date;
+  @CreateDateColumn() 
+  createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

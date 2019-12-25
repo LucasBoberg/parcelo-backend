@@ -4,17 +4,17 @@ import { createConnection } from 'typeorm';
 
 
 (async () => {
-    console.log('Beginning dbseed task.');
+  console.log('Beginning dbseed task.');
 
-    const conn = await createConnection();
-    console.log('PG connected.');
+  const conn = await createConnection();
+  console.log('PG connected.');
 
-    // Create seed data.
+  // Create seed data.
     
 
-    // Close connection
-    await conn.close();
-    console.log('PG connection closed.');
+  // Close connection
+  await conn.close();
+  console.log('PG connection closed.');
 
-    console.log('Finished dbseed task.');
+  console.log('Finished dbseed task.');
 })();

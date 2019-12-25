@@ -4,21 +4,22 @@ import { Product } from './Product';
 
 @Entity()
 export class Price {
-    @Column()
-    price: number;
 
-    @Column()
-    currency: string;
+  @Column()
+  price: number;
 
-    @ManyToOne(type => Shop, shop => shop.prices, { primary: true, nullable: false})
-    shop: Shop;
+  @Column()
+  currency: string;
 
-    @ManyToOne(type => Product, product => product.prices, { primary: true, nullable: false})
-    product: Product;
+  @ManyToOne(type => Shop, shop => shop.prices, { primary: true, nullable: false})
+  shop: Shop;
 
-    @CreateDateColumn() 
-    createdAt: Date;
+  @ManyToOne(type => Product, product => product.prices, { primary: true, nullable: false})
+  product: Product;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @CreateDateColumn() 
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

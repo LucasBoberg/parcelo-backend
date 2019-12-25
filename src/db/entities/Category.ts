@@ -6,22 +6,22 @@ import { Product } from "./Product";
 @Entity()
 export class Category {
 
-    @PrimaryColumn()
-    @Matches(new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$'))
-    slug: string;
+	@PrimaryColumn()
+	@Matches(new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)*$'))
+	slug: string;
 
-    @Column()
-    name: string;
+	@Column()
+	name: string;
 
-    @Column()
-    description: string;
+	@Column()
+	description: string;
 
-    @ManyToMany(type => Product, product => product.categories)
-    products: Product[];
+	@ManyToMany(type => Product, product => product.categories)
+	products: Product[];
 
-    @CreateDateColumn() 
-    createdAt: Date;
+	@CreateDateColumn() 
+	createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+	@UpdateDateColumn()
+	updatedAt: Date;
 }
