@@ -11,7 +11,7 @@ const geocoder = NodeGeoCoder(options);
 
 @Controller({ route: "/api/addresses" })
 export default class AddressesController {
-  @GET({ url: "/" })
+  @GET({ url: "/", options: { schema: { tags: ["address"] }}})
   async getAddresses(request, reply) {
     try {
       const addressRepository = await getManager().getCustomRepository(AddressRepository);
@@ -22,7 +22,7 @@ export default class AddressesController {
     }
   }
 
-  @GET({ url: "/:id" })
+  @GET({ url: "/:id", options: { schema: { tags: ["address"] }}})
   async getSingleAddresses(request, reply) {
     try {
       const id = request.params.id;
@@ -34,7 +34,7 @@ export default class AddressesController {
     }
   }
 
-  @POST({ url: "/" })
+  @POST({ url: "/", options: { schema: { tags: ["address"] }}})
   async addAddress(request, reply) {
     try {
       const addressRepository = await getManager().getCustomRepository(AddressRepository);
@@ -63,7 +63,7 @@ export default class AddressesController {
     }
   }
 
-  @PUT({ url: "/:id" })
+  @PUT({ url: "/:id", options: { schema: { tags: ["address"] }}})
   async updateAddress(request, reply) {
     try {
       const id = request.params.id;
@@ -105,7 +105,7 @@ export default class AddressesController {
     }
   }
 
-  @DELETE({ url: "/:id" })
+  @DELETE({ url: "/:id", options: { schema: { tags: ["address"] }}})
   async deleteAddress(request, reply) {
     try {
       const id = request.params.id;

@@ -8,7 +8,7 @@ import slugify from "slugify";
 
 @Controller({ route: "/api/shops" })
 export default class ShopsController {
-  @GET({ url: "/" })
+  @GET({ url: "/", options: { schema: { tags: ["shop"] }}})
   async getShops(request, reply) {
     try {
       const shopRepository = await getManager().getCustomRepository(ShopRepository);
@@ -19,7 +19,7 @@ export default class ShopsController {
     }
   }
 
-  @GET({ url: "/:id" })
+  @GET({ url: "/:id", options: { schema: { tags: ["shop"] }}})
   async getSingleShop(request, reply) {
     try {
       const id = request.params.id;
@@ -66,7 +66,7 @@ export default class ShopsController {
     }
   }
 
-  @POST({ url: "/" })
+  @POST({ url: "/", options: { schema: { tags: ["shop"] }}})
   async addShop(request, reply) {
     try {
       const shopRepository = await getManager().getCustomRepository(ShopRepository);
@@ -94,7 +94,7 @@ export default class ShopsController {
     }
   }
 
-  @PUT({ url: "/:id" })
+  @PUT({ url: "/:id", options: { schema: { tags: ["shop"] }}})
   async updateShop(request, reply) {
     try {
       const id = request.params.id;
@@ -135,7 +135,7 @@ export default class ShopsController {
     }
   }
 
-  @DELETE({ url: "/" })
+  @DELETE({ url: "/", options: { schema: { tags: ["shop"] }}})
   async deleteShop(request, reply) {
     try {
       const id = request.params.id;

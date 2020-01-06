@@ -7,7 +7,7 @@ import { UserRepository } from "../db/repositories/UserRepository";
 
 @Controller({ route: "/api/users" })
 export default class UserController {
-  @GET({ url: "/" })
+  @GET({ url: "/", options: { schema: { tags: ["user"] }}})
   async getUsers(request, reply) {
     try {
       const userRepository = await getManager().getCustomRepository(UserRepository);
@@ -18,7 +18,7 @@ export default class UserController {
     }
   }
 
-  @GET({ url: "/:id" })
+  @GET({ url: "/:id", options: { schema: { tags: ["user"] }}})
   async getSingleUser(request, reply) {
     try {
       const id = request.params.id;
@@ -30,7 +30,7 @@ export default class UserController {
     }
   }
 
-  @POST({ url: "/signup" })
+  @POST({ url: "/signup", options: { schema: { tags: ["user"] }}})
   async signUp(request, reply) {
     try {
       const body = request.body;
@@ -51,7 +51,7 @@ export default class UserController {
     }
   }
 
-  @POST({ url: "/signin" })
+  @POST({ url: "/signin", options: { schema: { tags: ["user"] }}})
   async signIn(request, reply) {
     try {
       const body = request.body;

@@ -8,7 +8,7 @@ import slugify from "slugify";
 
 @Controller({ route: "/api/categories" })
 export default class CategoriesController {
-  @GET({ url: "/" })
+  @GET({ url: "/", options: { schema: { tags: ["category"] }}})
   async getCategories(request, reply) {
     try {
       const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
@@ -19,7 +19,7 @@ export default class CategoriesController {
     }
   }
   
-  @GET({ url: "/:slug" })
+  @GET({ url: "/:slug", options: { schema: { tags: ["category"] }}})
   async getSingleCategory(request, reply) {
     try {
       const slug = request.params.slug;
@@ -32,7 +32,7 @@ export default class CategoriesController {
     }
   }
 
-  @POST({ url: "/" })
+  @POST({ url: "/", options: { schema: { tags: ["category"] }}})
   async addCategory(request, reply) {
     try {
       const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
@@ -56,7 +56,7 @@ export default class CategoriesController {
     }
   }
 
-  @PUT({ url: "/:slug" })
+  @PUT({ url: "/:slug", options: { schema: { tags: ["category"] }}})
   async updateCategory(request, reply) {
     try {
       const slug = request.params.slug;
@@ -85,7 +85,7 @@ export default class CategoriesController {
     }
   }
 
-  @DELETE({ url: "/:slug" })
+  @DELETE({ url: "/:slug", options: { schema: { tags: ["category"] }}})
   async deleteCategory(request, reply) {
     try {
       const slug = request.params.slug;

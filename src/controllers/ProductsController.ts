@@ -10,7 +10,7 @@ import slugify from "slugify";
 
 @Controller({ route: "/api/products" })
 export default class ProductsController {
-  @GET({ url: "/" })
+  @GET({ url: "/", options: { schema: { tags: ["product"] }}})
   async getProducts(request, reply) {
     try {
       const productRepository = await getManager().getCustomRepository(ProductRepository);
@@ -21,7 +21,7 @@ export default class ProductsController {
     }
   }
 
-  @GET({ url: "/:id" })
+  @GET({ url: "/:id", options: { schema: { tags: ["product"] }}})
   async getSingleProduct(request, reply) {
     try {
       const id = request.params.id;
@@ -80,7 +80,7 @@ export default class ProductsController {
     }
   }
 
-  @GET({ url: "/barcode/:barcode" })
+  @GET({ url: "/barcode/:barcode", options: { schema: { tags: ["product"] }}})
   async getSingleProductByBarcode(request, reply) {
     try {
       const barcode = request.params.barcode;
@@ -93,7 +93,7 @@ export default class ProductsController {
     }
   }
 
-  @POST({ url: "/" })
+  @POST({ url: "/", options: { schema: { tags: ["product"] }}})
   async addProduct(request, reply) {
     try {
       const productRepository = await getManager().getCustomRepository(ProductRepository);
@@ -141,7 +141,7 @@ export default class ProductsController {
     }
   }
 
-  @PUT({ url: "/:id" })
+  @PUT({ url: "/:id", options: { schema: { tags: ["product"] }}})
   async updateProduct(request, reply) {
     try {
       const id = request.params.id;
@@ -230,7 +230,7 @@ export default class ProductsController {
     }
   }
 
-  @DELETE({ url: "/:id" })
+  @DELETE({ url: "/:id", options: { schema: { tags: ["product"] }}})
   async deleteProduct(request, reply) {
     try {
       const id = request.params.id;

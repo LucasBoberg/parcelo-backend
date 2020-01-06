@@ -9,7 +9,7 @@ import { ProductRepository } from "../db/repositories/ProductRepository";
 
 @Controller({ route: "/api/prices" })
 export default class PricesController {
-  @GET({ url: "/" })
+  @GET({ url: "/", options: { schema: { tags: ["price"] }}})
   async getPrices(request, reply) {
     try {
       const priceRepository = await getManager().getCustomRepository(PriceRepository);
@@ -20,7 +20,7 @@ export default class PricesController {
     }
   }
 
-  @GET({ url: "/:id" })
+  @GET({ url: "/:id", options: { schema: { tags: ["price"] }}})
   async getSinglePrice(request, reply) {
     try {
       const id = request.params.id;
@@ -33,7 +33,7 @@ export default class PricesController {
     }
   }
 
-  @POST({ url: "/" })
+  @POST({ url: "/", options: { schema: { tags: ["price"] }}})
   async addPrice(request, reply) {
     try {
       const priceRepository = await getManager().getCustomRepository(PriceRepository);
@@ -63,7 +63,7 @@ export default class PricesController {
     }
   }
 
-  @PUT({ url: "/:id" })
+  @PUT({ url: "/:id", options: { schema: { tags: ["price"] }}})
   async updatePrice(request, reply) {
     try {
       const id = request.params.id;
@@ -101,7 +101,7 @@ export default class PricesController {
     }
   }
 
-  @DELETE({ url: "/:id" })
+  @DELETE({ url: "/:id", options: { schema: { tags: ["price"] }}})
   async deletePrice(request, reply) {
     try {
       const id = request.params.id;
