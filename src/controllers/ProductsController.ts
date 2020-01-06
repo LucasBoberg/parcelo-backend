@@ -1,3 +1,4 @@
+import { Controller, AbstractController, GET, POST, PUT, DELETE } from 'fastify-decorators';
 import * as boom from "@hapi/boom";
 import { getManager } from "typeorm";
 import { validate } from "class-validator";
@@ -7,144 +8,100 @@ import { ProductRepository } from "../db/repositories/ProductRepository";
 import { CategoryRepository } from "../db/repositories/CategoryRepository";
 import slugify from "slugify";
 
-export async function getProducts(request, reply) {
-  try {
-    const productRepository = await getManager().getCustomRepository(ProductRepository);
-    const products = await productRepository.find({ relations: ["categories", "prices", "reviews"] });
-    return products;
-  } catch (error) {
-    throw boom.boomify(error);
+@Controller({ route: "/api/products" })
+export default class ProductsController {
+  @GET({ url: "/" })
+  async getProducts(request, reply) {
+    try {
+      const productRepository = await getManager().getCustomRepository(ProductRepository);
+      const products = await productRepository.find({ relations: ["categories", "prices", "reviews"] });
+      return products;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
   }
-}
 
-export async function getSingleProduct(request, reply) {
-  try {
-    const id = request.params.id;
-    const productRepository = await getManager().getCustomRepository(ProductRepository);
-    const product = await productRepository.findOneOrFail(id, { relations: ["categories", "prices", "prices.shop", "reviews"] });
-    const productAlternatives = await productRepository.findByIds(product.alternatives, { select: ["id", "slug", "name", "manufacturer", "description", "images"] });
-    
-    let completePrices = [];
-
-    if (product.prices.length > 0) {
-      await product.prices.forEach((priceInformation) => {
-        const priceObject = {
-          price: priceInformation.price,
-          currency: priceInformation.currency,
-          shop: {
-            id: priceInformation.shop.id,
-            slug: priceInformation.shop.slug,
-            name: priceInformation.shop.name,
-            description: priceInformation.shop.description,
-            type: priceInformation.shop.type,
-            logo: priceInformation.shop.logo
-          },
-          createdAt: priceInformation.createdAt,
-          updatedAt: priceInformation.updatedAt
-        }
-        completePrices.push(priceObject)
-      });
-    }
-    
-    const completeProduct = {
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      serialNumber: product.serialNumber,
-      manufacturer: product.manufacturer,
-      description: product.description,
-      color: product.color,
-      multiFunction: product.multiFunction,
-      width: product.width,
-      height: product.height,
-      depth: product.depth,
-      weight: product.weight,
-      images: product.images,
-      alternatives: productAlternatives,
-      categories: product.categories,
-      prices: completePrices,
-      reviews: product.reviews,
-      barcode: product.barcode,
-      createdAt: product.createdAt,
-      updatedAt: product.updatedAt
-    }
+  @GET({ url: "/:id" })
+  async getSingleProduct(request, reply) {
+    try {
+      const id = request.params.id;
+      const productRepository = await getManager().getCustomRepository(ProductRepository);
+      const product = await productRepository.findOneOrFail(id, { relations: ["categories", "prices", "prices.shop", "reviews"] });
+      const productAlternatives = await productRepository.findByIds(product.alternatives, { select: ["id", "slug", "name", "manufacturer", "description", "images"] });
+      
+      let completePrices = [];
   
-    return completeProduct;
-  } catch (error) {
-    throw boom.boomify(error);
-  }
-}
-
-export async function getSingleProductByBarcode(request, reply) {
-  try {
-    const barcode = request.params.barcode;
-    const productRepository = await getManager().getCustomRepository(ProductRepository);
-    const product = await productRepository.findByBarcode(barcode);
-  
-    return product;
-  } catch (error) {
-    throw boom.boomify(error);
-  }
-}
-
-export async function addProduct(request, reply) {
-  try {
-    const productRepository = await getManager().getCustomRepository(ProductRepository);
-    const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
-    const body = request.body;
-    const categories = body.categories;
-    let createdCategories: Category[] = [];
-
-    await categories.forEach((categoryInformation) => {
-      const category = new Category();
-      category.name = categoryInformation.name;
-      category.slug = slugify(categoryInformation.name, {lower: true, remove: /[*+~.()'"!:@]/g});
-      category.description = categoryInformation.description;
-      categoryRepository.save(category)
-      createdCategories.push(category);
-    });
-
-    const product = new Product();
-    product.name = body.name;
-    product.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
-    product.serialNumber = body.serialNumber;
-    product.manufacturer = body.manufacturer;
-    product.description = body.description;
-    product.color = body.color;
-    product.multiFunction = body.multiFunction;
-    product.width = parseFloat(body.width);
-    product.height = parseFloat(body.height);
-    product.depth = parseFloat(body.depth);
-    product.weight = parseFloat(body.weight);
-    product.images = body.images;
-    product.alternatives = body.alternatives;
-    product.barcode = body.barcode;
-    product.categories = createdCategories;
-
-    const errors = await validate(product);
-    if (errors.length > 0) {
-      throw boom.boomify(new Error(errors.toString())); 
-    } else {
-      await productRepository.save(product);
-    }
+      if (product.prices.length > 0) {
+        await product.prices.forEach((priceInformation) => {
+          const priceObject = {
+            price: priceInformation.price,
+            currency: priceInformation.currency,
+            shop: {
+              id: priceInformation.shop.id,
+              slug: priceInformation.shop.slug,
+              name: priceInformation.shop.name,
+              description: priceInformation.shop.description,
+              type: priceInformation.shop.type,
+              logo: priceInformation.shop.logo
+            },
+            createdAt: priceInformation.createdAt,
+            updatedAt: priceInformation.updatedAt
+          }
+          completePrices.push(priceObject)
+        });
+      }
+      
+      const completeProduct = {
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+        serialNumber: product.serialNumber,
+        manufacturer: product.manufacturer,
+        description: product.description,
+        color: product.color,
+        multiFunction: product.multiFunction,
+        width: product.width,
+        height: product.height,
+        depth: product.depth,
+        weight: product.weight,
+        images: product.images,
+        alternatives: productAlternatives,
+        categories: product.categories,
+        prices: completePrices,
+        reviews: product.reviews,
+        barcode: product.barcode,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt
+      }
     
-    return product;
-  } catch (error) {
-    throw boom.boomify(error);
+      return completeProduct;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
   }
-}
 
-export async function updateProduct(request, reply) {
-  try {
-    const id = request.params.id;
-    const productRepository = await getManager().getCustomRepository(ProductRepository);
-    const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
-    const body = request.body;
-    const productData: Product = await productRepository.findOneOrFail(id);
-    let createdCategories: Category[] = [];
-    if (body.categories != undefined || body.categories != null) {
+  @GET({ url: "/barcode/:barcode" })
+  async getSingleProductByBarcode(request, reply) {
+    try {
+      const barcode = request.params.barcode;
+      const productRepository = await getManager().getCustomRepository(ProductRepository);
+      const product = await productRepository.findByBarcode(barcode);
+    
+      return product;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @POST({ url: "/" })
+  async addProduct(request, reply) {
+    try {
+      const productRepository = await getManager().getCustomRepository(ProductRepository);
+      const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
+      const body = request.body;
       const categories = body.categories;
-
+      let createdCategories: Category[] = [];
+  
       await categories.forEach((categoryInformation) => {
         const category = new Category();
         category.name = categoryInformation.name;
@@ -153,83 +110,136 @@ export async function updateProduct(request, reply) {
         categoryRepository.save(category)
         createdCategories.push(category);
       });
+  
+      const product = new Product();
+      product.name = body.name;
+      product.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
+      product.serialNumber = body.serialNumber;
+      product.manufacturer = body.manufacturer;
+      product.description = body.description;
+      product.color = body.color;
+      product.multiFunction = body.multiFunction;
+      product.width = parseFloat(body.width);
+      product.height = parseFloat(body.height);
+      product.depth = parseFloat(body.depth);
+      product.weight = parseFloat(body.weight);
+      product.images = body.images;
+      product.alternatives = body.alternatives;
+      product.barcode = body.barcode;
+      product.categories = createdCategories;
+  
+      const errors = await validate(product);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await productRepository.save(product);
+      }
+      
+      return product;
+    } catch (error) {
+      throw boom.boomify(error);
     }
-    
-
-    if (createdCategories.length > 0) {
-      productData.categories = createdCategories;
-    }
-
-    if (body.name != null) {
-      productData.name = body.name;
-      productData.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
-    }
-
-    if (body.serialNumber != null) {
-      productData.serialNumber = body.serialNumber;
-    } 
-
-    if (body.manufacturer != null) {
-      productData.manufacturer = body.manufacturer;
-    }
-
-    if (body.description != null) {
-      productData.description = body.description;
-    }
-
-    if (body.color != null) {
-      productData.color = body.color;
-    } 
-    
-    if (body.multiFunction != null) {
-      productData.multiFunction = body.multiFunction;
-    } 
-
-    if (body.width != null) {
-      productData.width = parseFloat(body.width);
-    } 
-    if (body.height != null) {
-      productData.height = parseFloat(body.height);
-    } 
-    if (body.depth != null) {
-      productData.depth = parseFloat(body.depth);
-    } 
-    if (body.weight != null) {
-      productData.weight = parseFloat(body.weight);
-    }
-
-    if (body.images != null) {
-      productData.images = body.images;
-    } 
-
-    if (body.alternatives != null) {
-      productData.alternatives = body.alternatives;
-    } 
-
-    if (body.barcode != null) {
-      productData.barcode = body.barcode;
-    }
-    const errors = await validate(productData);
-    if (errors.length > 0) {
-      throw boom.boomify(new Error(errors.toString())); 
-    } else {
-      await productRepository.save(productData);
-    }
-
-    return productData;
-  } catch (error) {
-    throw boom.boomify(error);
   }
-}
 
-export async function deleteProduct(request, reply) {
-  try {
-    const id = request.params.id;
-    const productRepository = await getManager().getCustomRepository(ProductRepository);
-    const product = await productRepository.findOneOrFail(id);
-    await productRepository.remove(product);
-    return { message: id + " was removed!" };
-  } catch (error) {
-    throw boom.boomify(error);
+  @PUT({ url: "/:id" })
+  async updateProduct(request, reply) {
+    try {
+      const id = request.params.id;
+      const productRepository = await getManager().getCustomRepository(ProductRepository);
+      const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
+      const body = request.body;
+      const productData: Product = await productRepository.findOneOrFail(id);
+      let createdCategories: Category[] = [];
+      if (body.categories != undefined || body.categories != null) {
+        const categories = body.categories;
+  
+        await categories.forEach((categoryInformation) => {
+          const category = new Category();
+          category.name = categoryInformation.name;
+          category.slug = slugify(categoryInformation.name, {lower: true, remove: /[*+~.()'"!:@]/g});
+          category.description = categoryInformation.description;
+          categoryRepository.save(category)
+          createdCategories.push(category);
+        });
+      }
+      
+  
+      if (createdCategories.length > 0) {
+        productData.categories = createdCategories;
+      }
+  
+      if (body.name != null) {
+        productData.name = body.name;
+        productData.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
+      }
+  
+      if (body.serialNumber != null) {
+        productData.serialNumber = body.serialNumber;
+      } 
+  
+      if (body.manufacturer != null) {
+        productData.manufacturer = body.manufacturer;
+      }
+  
+      if (body.description != null) {
+        productData.description = body.description;
+      }
+  
+      if (body.color != null) {
+        productData.color = body.color;
+      } 
+      
+      if (body.multiFunction != null) {
+        productData.multiFunction = body.multiFunction;
+      } 
+  
+      if (body.width != null) {
+        productData.width = parseFloat(body.width);
+      } 
+      if (body.height != null) {
+        productData.height = parseFloat(body.height);
+      } 
+      if (body.depth != null) {
+        productData.depth = parseFloat(body.depth);
+      } 
+      if (body.weight != null) {
+        productData.weight = parseFloat(body.weight);
+      }
+  
+      if (body.images != null) {
+        productData.images = body.images;
+      } 
+  
+      if (body.alternatives != null) {
+        productData.alternatives = body.alternatives;
+      } 
+  
+      if (body.barcode != null) {
+        productData.barcode = body.barcode;
+      }
+      const errors = await validate(productData);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await productRepository.save(productData);
+      }
+  
+      return productData;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @DELETE({ url: "/:id" })
+  async deleteProduct(request, reply) {
+    try {
+      const id = request.params.id;
+      const productRepository = await getManager().getCustomRepository(ProductRepository);
+      const product = await productRepository.findOneOrFail(id);
+      await productRepository.remove(product);
+      return { message: id + " was removed!" };
+    } catch (error) {
+      throw boom.boomify(error);
+    }
   }
 }

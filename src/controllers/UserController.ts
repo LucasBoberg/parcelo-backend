@@ -1,42 +1,80 @@
+import { Controller, AbstractController, GET, POST, PUT, DELETE } from 'fastify-decorators';
 import * as boom from "@hapi/boom";
 import { getManager } from "typeorm";
+import * as bcrypt from "bcrypt";
 import { User } from "../db/entities/User";
 import { UserRepository } from "../db/repositories/UserRepository";
 
-export async function getUsers(request, reply) {
-  try {
-    const userRepository = await getManager().getCustomRepository(UserRepository);
-    const users = await userRepository.find();
-    return users;
-  } catch (error) {
-    throw boom.boomify(error);
+@Controller({ route: "/api/users" })
+export default class UserController {
+  @GET({ url: "/" })
+  async getUsers(request, reply) {
+    try {
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const users = await userRepository.find();
+      return users;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
   }
-}
 
-export async function getSingleUser(request, reply) {
-  try {
-    const id = request.params.id;
-    const userRepository = await getManager().getCustomRepository(UserRepository);
-    const user = await userRepository.findOneOrFail(id, { relations: ["addresses"] });
-    return user;
-  } catch (error) {
-    throw boom.boomify(error);
+  @GET({ url: "/:id" })
+  async getSingleUser(request, reply) {
+    try {
+      const id = request.params.id;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const user = await userRepository.findOneOrFail(id, { relations: ["addresses"] });
+      return user;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
   }
-}
 
-export async function signUp(request, reply) {
-  /*const body = ctx.request.body;
+  @POST({ url: "/signup" })
+  async signUp(request, reply) {
+    try {
+      const body = request.body;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
   
-  const userRepository = await getManager().getCustomRepository(UserRepository);
+      const hashedPassword = await bcrypt.hash(body.password, 10)
+  
+      const user = new User();
+      user.firstName = body.firstName;
+      user.lastName = body.lastName;
+      user.email = body.email;
+      user.password = hashedPassword;
+      user.addresses = [];
+      await userRepository.save(user);
+      return user;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
 
-  const user = new User();
-  user.firstName = body.firstName;
-  user.lastName = body.lastName;
-  user.email = body.email;
-  user.password = body.password;
-  await userRepository.save(user);
-  ctx.body = {
-    message: "Saved new user",
-    data: user
-  }*/
+  @POST({ url: "/signin" })
+  async signIn(request, reply) {
+    try {
+      const body = request.body;
+      const email = body.email;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+  
+      const user: User = await userRepository.findByEmail(email);
+  
+      const match = await bcrypt.compare(body.password, user.password);
+  
+      if (match) {
+        const token = await reply.jwtSign({ user });
+        return reply.code(200).send({
+          message: "Auth successful",
+          token: token
+        });
+      } else {
+        return reply.code(401).send({
+          message: "Auth failed"
+        });
+      }
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
 }

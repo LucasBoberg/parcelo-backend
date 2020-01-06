@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToMany, JoinTable } from "typeorm";
+import { Entity, Unique, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToMany, JoinTable } from "typeorm";
 import { IsEmail } from "class-validator";
 import { Address } from "./Address";
 import { ProductReview } from "./ProductReview";
@@ -7,6 +7,7 @@ import { DeliveryReview } from "./DeliveryReview";
 import { UserRole } from "../../Utils/user";
 
 @Entity()
+@Unique(["email"])
 export class User {
 
   @PrimaryGeneratedColumn("uuid")

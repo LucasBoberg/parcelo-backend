@@ -1,48 +1,32 @@
 import "reflect-metadata";
 import { createConnection } from "typeorm";
 import { Server, IncomingMessage, ServerResponse } from "http";
-import { routes } from "./routes/index";
-import { productRoutes } from "./routes/products";
-import { shopRoutes } from "./routes/shops";
-import { priceRoutes } from "./routes/prices";
-import { addressRoutes } from "./routes/addresses";
-import { categoryRoutes } from "./routes/categories";
+import { bootstrap } from 'fastify-decorators';
+import { join } from 'path';
 import { swaggerOptions } from "./config/swagger";
-import * as fastify from 'fastify';
-import * as fastifySwagger from 'fastify-swagger';
-import * as fastifyHelmet from 'fastify-helmet';
+import auth from "./plugins/auth";
+import * as fastify from "fastify";
+import * as fastifySwagger from "fastify-swagger";
+import * as fastifyHelmet from "fastify-helmet";
 
 const PORT = parseInt(process.env.PORT) || 3000;
 
 const server: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> = fastify({
   logger: { prettyPrint: true }
 });
+
+const bootstrapOptions = {
+  // This option defines which directory should be scanned for handlers
+  controllersDirectory: join(__dirname, `controllers`),
+
+  // This option defines which pattern should file match
+  controllersMask: /\Controller\./
+};
+
 server.register(fastifyHelmet);
 server.register(fastifySwagger, swaggerOptions);
-
-routes.forEach((route, index) => {
-  server.route(route);
-});
-
-productRoutes.forEach((route, index) => {
-  server.route(route);
-});
-
-shopRoutes.forEach((route, index) => {
-  server.route(route);
-});
-
-priceRoutes.forEach((route, index) => {
-  server.route(route);
-});
-
-addressRoutes.forEach((route, index) => {
-  server.route(route);
-});
-
-categoryRoutes.forEach((route, index) => {
-  server.route(route);
-});
+server.register(auth);
+server.register(bootstrap, bootstrapOptions);
 
 createConnection().then(async connection => {
   const start = async () => {
