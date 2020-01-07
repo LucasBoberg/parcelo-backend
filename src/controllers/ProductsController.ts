@@ -30,8 +30,7 @@ export default class ProductsController {
       const productAlternatives = await productRepository.findByIds(product.alternatives, { select: ["id", "slug", "name", "manufacturer", "description", "images"] });
       
       let completePrices = [];
-  
-      if (product.prices.length > 0) {
+      if (product.prices.length > 0 && product.prices[0].price !== null) {
         await product.prices.forEach((priceInformation) => {
           const priceObject = {
             price: priceInformation.price,

@@ -6,7 +6,8 @@ import { User } from "../db/entities/User";
 import { UserRepository } from "../db/repositories/UserRepository";
 
 @Controller({ route: "/api/users" })
-export default class UserController {
+export default class UserController extends AbstractController {
+
   @GET({ url: "/", options: { schema: { tags: ["user"] }}})
   async getUsers(request, reply) {
     try {

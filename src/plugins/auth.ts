@@ -7,11 +7,11 @@ export default fp((server, opts, next) => {
   })
   server.decorate("authenticate", async (request, reply) => {
     try {
-      await request.jwtVerify()
+      await request.jwtVerify();
     } catch (error) {
       throw boom.boomify(error);
     }
-  })
+  });
 
-  next()
+  next();
 })

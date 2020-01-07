@@ -28,7 +28,7 @@ export default class ShopsController {
   
       let completePrices = [];
   
-      if (shop.prices.length > 0) {
+      if (shop.prices.length > 0 && shop.prices[0].price !== null) {
         await shop.prices.forEach((priceInformation) => {
           const priceObject = {
             price: priceInformation.price,
