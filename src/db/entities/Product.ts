@@ -38,6 +38,9 @@ export class Product {
 
   @OneToMany(type => ProductReview, review => review.product)
   reviews: ProductReview[];
+  
+  @Column({ default: false })
+  exclusive: boolean;
 
   @Column()
   width: number;

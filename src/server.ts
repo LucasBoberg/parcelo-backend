@@ -16,10 +16,7 @@ const server: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> =
 });
 
 const bootstrapOptions = {
-  // This option defines which directory should be scanned for handlers
   controllersDirectory: join(__dirname, `controllers`),
-
-  // This option defines which pattern should file match
   controllersMask: /\Controller\./
 };
 
@@ -33,7 +30,6 @@ createConnection().then(async connection => {
     try {
       await server.listen(PORT);
       server.swagger();
-      server.log.info(`server listening on ${server.server.address().port}`)
     } catch(error) {
       server.log.error(error);
       process.exit(1);

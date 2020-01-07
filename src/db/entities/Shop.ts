@@ -30,6 +30,9 @@ export class Shop {
   @Column({ type: "enum", enum: ShopType, default: ShopType.STORE })
   type: ShopType
 
+  @Column({ default: false })
+  exclusive: boolean;
+
   @OneToMany(type => Price, price => price.shop)
   prices: Price[];
 
