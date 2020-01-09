@@ -5,6 +5,7 @@ import { ProductReview } from "./ProductReview";
 import { ShopReview } from "./ShopReview";
 import { DeliveryReview } from "./DeliveryReview";
 import { UserRole } from "../../Utils/user";
+import { Order } from "./Order"; 
 
 @Entity()
 @Unique(["email"])
@@ -32,6 +33,9 @@ export class User {
   @ManyToMany(type => Address)
   @JoinTable()
   addresses: Address[];
+
+  @OneToMany(type => Order, order => order.user)
+  orders: Order[];
 
   @OneToMany(type => ProductReview, productReview => productReview.user)
   productReviews: ProductReview[];
