@@ -92,7 +92,53 @@ export default class ProductsController {
     }
   }
 
-  @POST({ url: "/", options: { schema: { tags: ["product"] }}})
+  @POST({ url: "/", options: { schema: { 
+    tags: ["product"],
+    body: {
+      type: "object",
+      properties: {
+        "name": {
+          "type": "string"
+        },
+        "serialNumber": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "width": {
+          "type": "string"
+        },
+        "height": {
+          "type": "string"
+        },
+        "depth": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "string"
+        },
+        "images": {
+          "type": "string"
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "barcode": {
+          "type": "string"
+        },
+        "categories": {
+          "type": "array",
+          "items":"#category#"
+        }
+      }
+    }}}})
   async addProduct(request, reply) {
     try {
       const productRepository = await getManager().getCustomRepository(ProductRepository);

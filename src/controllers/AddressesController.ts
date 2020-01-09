@@ -34,7 +34,29 @@ export default class AddressesController {
     }
   }
 
-  @POST({ url: "/", options: { schema: { tags: ["address"] }}})
+  @POST({ url: "/", options: { schema: { 
+    tags: ["address"],
+    body: {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "street": {
+          "type": "string"
+        },
+        "postal": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
   async addAddress(request, reply) {
     try {
       const addressRepository = await getManager().getCustomRepository(AddressRepository);

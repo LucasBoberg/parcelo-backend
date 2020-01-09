@@ -33,7 +33,26 @@ export default class PricesController {
     }
   }
 
-  @POST({ url: "/", options: { schema: { tags: ["price"] }}})
+  @POST({ url: "/", options: { schema: { 
+    tags: ["price"],
+    body: {
+      "type": "object",
+      "properties": {
+        "price": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "shopId": {
+          "type": "string"
+        },
+        "productId": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
   async addPrice(request, reply) {
     try {
       const priceRepository = await getManager().getCustomRepository(PriceRepository);

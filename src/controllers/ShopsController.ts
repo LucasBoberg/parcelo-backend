@@ -66,7 +66,29 @@ export default class ShopsController {
     }
   }
 
-  @POST({ url: "/", options: { schema: { tags: ["shop"] }}})
+  @POST({ url: "/", options: { schema: { 
+    tags: ["shop"],
+    body: {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "logo": {
+          "type": "string"
+        },
+        "banner": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
   async addShop(request, reply) {
     try {
       const shopRepository = await getManager().getCustomRepository(ShopRepository);

@@ -32,7 +32,10 @@ export default class CategoriesController {
     }
   }
 
-  @POST({ url: "/", options: { schema: { tags: ["category"] }}})
+  @POST({ url: "/", options: { schema: { 
+    tags: ["category"],
+    body: "#category#"
+  }}})
   async addCategory(request, reply) {
     try {
       const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
