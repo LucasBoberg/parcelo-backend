@@ -16,8 +16,8 @@ const server: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> =
 });
 
 const bootstrapOptions = {
-  controllersDirectory: join(__dirname, `controllers`),
-  controllersMask: /\Controller\./
+  directory: join(__dirname, `controllers`),
+  mask: /\Controller\./
 };
 
 server.register(fastifyHelmet);

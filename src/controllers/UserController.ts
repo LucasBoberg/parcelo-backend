@@ -1,4 +1,5 @@
-import { Controller, AbstractController, GET, POST, PUT, DELETE } from 'fastify-decorators';
+import { FastifyInstance } from 'fastify';
+import { Controller, FastifyInstanceToken, getInstanceByToken, GET, POST, PUT, DELETE } from 'fastify-decorators';
 import * as boom from "@hapi/boom";
 import { getManager } from "typeorm";
 import * as bcrypt from "bcrypt";
@@ -6,9 +7,10 @@ import { User } from "../db/entities/User";
 import { UserRepository } from "../db/repositories/UserRepository";
 
 @Controller({ route: "/api/users" })
-export default class UserController extends AbstractController {
+export default class UserController {
+  private static instance = getInstanceByToken<FastifyInstance>(FastifyInstanceToken);
 
-  @GET({ url: "/", options: { schema: { tags: ["user"] }}})
+  @GET({ url: "/", options: { preValidation: [UserController.instance.authenticate], schema: { tags: ["user"] }}})
   async getUsers(request, reply) {
     try {
       const userRepository = await getManager().getCustomRepository(UserRepository);
