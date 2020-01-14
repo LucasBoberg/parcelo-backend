@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, CreateDateColumn, Up
 import { User } from "./User";
 import { ProductOrder } from "../../classes/ProductOrder";
 import { ShopOrder } from "../../classes/ShopOrder";
+import { LocationOrder } from "../../classes/LocationOrder";
 
 @Entity()
 export class Order {
@@ -22,6 +23,9 @@ export class Order {
 
   @Column("simple-json")
   shops: ShopOrder[];
+
+  @Column("simple-json")
+  locations: LocationOrder[];
 
   @CreateDateColumn() 
   createdAt: Date;

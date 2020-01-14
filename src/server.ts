@@ -1,8 +1,9 @@
 import "reflect-metadata";
 import { createConnection } from "typeorm";
 import { Server, IncomingMessage, ServerResponse } from "http";
-import { bootstrap } from 'fastify-decorators';
-import { join } from 'path';
+import { bootstrap } from "fastify-decorators";
+import * as fastifyWebsocket from "fastify-websocket";
+import { join } from "path";
 import { swaggerOptions } from "./config/swagger";
 import auth from "./plugins/auth";
 import schemas from "./plugins/schemas";
@@ -25,6 +26,7 @@ server.register(fastifyHelmet);
 server.register(fastifySwagger, swaggerOptions);
 server.register(auth);
 server.register(schemas);
+server.register(fastifyWebsocket);
 server.register(bootstrap, bootstrapOptions);
 
 createConnection().then(async connection => {

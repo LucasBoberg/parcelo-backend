@@ -1,5 +1,4 @@
 import { Shop } from "../db/entities/Shop";
-import { ShopType } from "../Utils/shop";
 
 export class ShopOrder {
   id: string;
@@ -14,9 +13,5 @@ export class ShopOrder {
     this.name = name;
     this.logo = logo;
     this.type = type;
-  }
-
-  convertShop(shop: Shop): ShopOrder {
-    return new ShopOrder(String(shop.id), shop.slug, shop.name, shop.logo, shop.type);
   }
 }

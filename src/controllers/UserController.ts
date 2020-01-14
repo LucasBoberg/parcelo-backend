@@ -66,7 +66,12 @@ export default class UserController {
       const match = await bcrypt.compare(body.password, user.password);
   
       if (match) {
-        const token = await reply.jwtSign({ user });
+        const payload = {
+          id: user.id,
+          role: user.role,
+          email: user.email
+        }
+        const token = await reply.jwtSign({ payload });
         return reply.code(200).send({
           message: "Auth successful",
           token: token

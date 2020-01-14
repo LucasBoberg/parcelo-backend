@@ -30,8 +30,4 @@ export class ProductOrder {
     this.image = image;
     this.barcode = barcode;
   }
-
-  convertProduct(product: Product, price: number, currency: string): ProductOrder {
-    return new ProductOrder(String(product.id), product.slug, product.name, product.serialNumber, product.manufacturer, price, currency, product.width, product.height, product.depth, product.weight, product.images[0], product.barcode);
-  }
 }

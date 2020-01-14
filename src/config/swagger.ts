@@ -17,7 +17,8 @@ export const swaggerOptions = {
       { name: 'shop', description: 'Shop related end-points' },
       { name: 'price', description: 'Price related end-points' },
       { name: 'address', description: 'Address related end-points' },
-      { name: 'category', description: 'Category related end-points' }
+      { name: 'category', description: 'Category related end-points' },
+      { name: 'order', description: 'Order related end-points' }
     ],
   }
 }

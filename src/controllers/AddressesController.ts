@@ -1,4 +1,4 @@
-import { Controller, AbstractController, GET, POST, PUT, DELETE } from 'fastify-decorators';
+import { Controller, GET, POST, PUT, DELETE } from 'fastify-decorators';
 import * as boom from "@hapi/boom";
 import { getManager } from "typeorm";
 import { validate } from "class-validator";
