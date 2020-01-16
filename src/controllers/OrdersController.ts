@@ -28,6 +28,18 @@ export default class OrdersController {
       throw boom.boomify(error);
     }
   }
+
+  @GET({ url: "/shop/:id", options: { schema: { tags: ["order"] }}})
+  async getOrdersByShop(request, reply) {
+    try {
+      const id = request.params.id;
+      const orderRepository = await getManager().getCustomRepository(OrderRepository);
+      const orders = await orderRepository.findByShopId(id);
+      return orders;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
   
   @GET({ url: "/:id", options: { schema: { tags: ["order"] }}})
   async getSingleOrder(request, reply) {
@@ -184,6 +196,24 @@ export default class OrdersController {
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
       setIntervalAsync(async () => {
         const orders = await orderRepository.find();
+        connection.socket.send(JSON.stringify(orders))
+      }, 3000)
+      
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+  @GET({ url: "/shop/realtime/:id", options: { websocket: true, schema: {
+    tags: ["order"]
+  }}})
+  async getRealtimeOrdersByShop(connection, request, params) {
+    try {
+      
+      const id = await params.id;
+      console.log(connection);
+      const orderRepository = await getManager().getCustomRepository(OrderRepository);
+      setIntervalAsync(async () => {
+        const orders = await orderRepository.findByShopId(id);
         connection.socket.send(JSON.stringify(orders))
       }, 3000)
       

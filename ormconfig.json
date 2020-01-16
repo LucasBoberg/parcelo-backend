@@ -5,7 +5,7 @@
    "username": "lboberg",
    "password": "",
    "database": "delivery_dev",
-   "synchronize": false,
+   "synchronize": true,
    "logging": false,
    "entities": [
       "src/db/entities/**/*.ts"

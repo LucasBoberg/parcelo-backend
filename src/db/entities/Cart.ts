@@ -1,25 +1,25 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, OneToOne, Column, JoinTable, ManyToMany, UpdateDateColumn } from "typeorm";
+import { User } from "./User";
+import { Product } from "./Product";
 
 @Entity()
-export class Address {
+export class Cart {
 
   @PrimaryGeneratedColumn("uuid")
   id: number;
 
-  @Column()
-  street: string;
+  @OneToOne(type => User, user => user.cart)
+  user: User;
+
+  @Column({ default: 0 })
+  total: number;
 
   @Column()
-  postal: string;
+  currency: string;
 
-  @Column()
-  city: string;
-
-  @Column()
-  country: string;
-
-  @CreateDateColumn() 
-  createdAt: Date;
+  @ManyToMany(type => Product)
+  @JoinTable()
+  products: Product[];
 
   @UpdateDateColumn()
   updatedAt: Date;

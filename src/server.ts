@@ -29,6 +29,11 @@ server.register(schemas);
 server.register(fastifyWebsocket);
 server.register(bootstrap, bootstrapOptions);
 
+server.get("/test/api/orders/shop/realtime/:id", { websocket: true }, async (connection, req, params) => {
+  const id = await params.id;
+  console.log(id);
+});
+
 createConnection().then(async connection => {
   const start = async () => {
     try {

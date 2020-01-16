@@ -13,6 +13,7 @@ export const swaggerOptions = {
     produces: ['application/json'],
     tags: [
       { name: 'user', description: 'User related end-points' },
+      { name: 'cart', description: 'Cart related end-points' },
       { name: 'product', description: 'Product related end-points' },
       { name: 'shop', description: 'Shop related end-points' },
       { name: 'price', description: 'Price related end-points' },

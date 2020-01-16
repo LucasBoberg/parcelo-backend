@@ -1,4 +1,4 @@
-import { Entity, Unique, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToMany, JoinTable } from "typeorm";
+import { Entity, Unique, PrimaryGeneratedColumn, OneToOne, JoinColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, OneToMany, JoinTable } from "typeorm";
 import { IsEmail } from "class-validator";
 import { Address } from "./Address";
 import { ProductReview } from "./ProductReview";
@@ -6,6 +6,7 @@ import { ShopReview } from "./ShopReview";
 import { DeliveryReview } from "./DeliveryReview";
 import { UserRole } from "../../Utils/user";
 import { Order } from "./Order"; 
+import { Cart } from "./Cart"; 
 
 @Entity()
 @Unique(["email"])
@@ -29,6 +30,10 @@ export class User {
 
   @Column()
   lastName: string;
+
+  @OneToOne(type => Cart, cart => cart.user)
+  @JoinColumn()
+  cart: Cart;
 
   @ManyToMany(type => Address)
   @JoinTable()

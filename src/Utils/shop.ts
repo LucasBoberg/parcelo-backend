@@ -6,6 +6,12 @@ export enum ShopType {
   RESTAURANT = "restaurant"
 }
 
+export enum ShopStatus {
+  WAITING = "waiting",
+  ACCEPTED = "accepted",
+  REJECTED = "rejected"
+}
+
 export function convertShop(shop: Shop): ShopOrder {
-  return new ShopOrder(String(shop.id), shop.slug, shop.name, shop.logo, shop.type);
+  return new ShopOrder(String(shop.id), shop.slug, shop.name, shop.logo, shop.type, "waiting");
 }
