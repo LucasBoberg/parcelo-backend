@@ -9,7 +9,8 @@ export enum ShopType {
 export enum ShopStatus {
   WAITING = "waiting",
   ACCEPTED = "accepted",
-  REJECTED = "rejected"
+  REJECTED = "rejected",
+  COMPLETED = "completed"
 }
 
 export function convertShop(shop: Shop): ShopOrder {
