@@ -122,7 +122,24 @@ export default class ProductsController {
           "type": "string"
         },
         "images": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
         },
         "alternatives": {
           "type": "array",
@@ -168,6 +185,7 @@ export default class ProductsController {
       product.height = parseFloat(body.height);
       product.depth = parseFloat(body.depth);
       product.weight = parseFloat(body.weight);
+      product.details = body.details;
       product.images = body.images;
       product.alternatives = body.alternatives;
       product.barcode = body.barcode;
@@ -253,6 +271,10 @@ export default class ProductsController {
   
       if (body.images != null) {
         productData.images = body.images;
+      } 
+
+      if (body.details != null) {
+        productData.details = body.details;
       } 
   
       if (body.alternatives != null) {

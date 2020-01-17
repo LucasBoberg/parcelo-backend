@@ -4,6 +4,7 @@ import { Category } from "./Category";
 import { Price } from './Price';
 import { ProductReview } from './ProductReview';
 import { MultiFunction, Color } from "../../Utils/product";
+import { ProductDetail } from "../../classes/ProductDetail";
 
 @Entity()
 export class Product {
@@ -56,6 +57,9 @@ export class Product {
 
   @Column("simple-array")
   images: string[];
+
+  @Column("simple-json", { default: [] })
+  details: ProductDetail[];
 
   @Column("simple-array")
   @IsUUID("4", {each: true})
