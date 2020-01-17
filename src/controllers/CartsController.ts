@@ -121,6 +121,61 @@ export default class CartsController {
     }
   }
 
+  @POST({ url: "/:id/add/:productId", options: { schema: { tags: ["cart"] }}})
+  async addProduct(request, reply) {
+    try {
+      const id = request.params.id;
+      const productId = request.params.productId;
+      const cartRepository = await getManager().getCustomRepository(CartRepository);
+      const productRepository = await getManager().getCustomRepository(ProductRepository);
+      const cart = await cartRepository.findOneOrFail(id);
+      const product = await productRepository.findOneOrFail(productId);
+
+      if (!cart.products.includes(product)) {
+        cart.products.push(product);
+      } else {
+        throw boom.boomify(new Error("Product already added to cart"));
+      }
+
+      const errors = await validate(cart);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await cartRepository.save(cart);
+      }
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @DELETE({ url: "/:id/remove/:productId", options: { schema: { tags: ["cart"] }}})
+  async removeProduct(request, reply) {
+    try {
+      const id = request.params.id;
+      const productId = request.params.productId;
+      const cartRepository = await getManager().getCustomRepository(CartRepository);
+      const productRepository = await getManager().getCustomRepository(ProductRepository);
+      const cart = await cartRepository.findOneOrFail(id);
+      const product = await productRepository.findOneOrFail(productId);
+
+      if (cart.products.includes(product)) {
+        const index = cart.products.indexOf(product, 0)
+        cart.products.splice(index, 1);
+      } else {
+        throw boom.boomify(new Error("Product is not in cart"));
+      }
+      
+      const errors = await validate(cart);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await cartRepository.save(cart);
+      }
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
   @DELETE({ url: "/:id", options: { schema: { tags: ["cart"] }}})
   async deleteCart(request, reply) {
     try {

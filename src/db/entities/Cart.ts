@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, OneToOne, Column, JoinTable, ManyToMany, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, OneToOne, Column, JoinTable, ManyToMany, UpdateDateColumn, CreateDateColumn } from "typeorm";
 import { User } from "./User";
 import { Product } from "./Product";
 
@@ -20,6 +20,9 @@ export class Cart {
   @ManyToMany(type => Product)
   @JoinTable()
   products: Product[];
+
+  @CreateDateColumn() 
+  createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;

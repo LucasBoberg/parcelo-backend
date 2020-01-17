@@ -208,15 +208,12 @@ export default class OrdersController {
   }}})
   async getRealtimeOrdersByShop(connection, request, params) {
     try {
-      
       const id = await params.id;
-      console.log(connection);
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
       setIntervalAsync(async () => {
         const orders = await orderRepository.findByShopId(id);
         connection.socket.send(JSON.stringify(orders))
-      }, 3000)
-      
+      }, 3000);
     } catch (error) {
       throw boom.boomify(error);
     }
