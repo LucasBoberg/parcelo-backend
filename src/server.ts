@@ -37,7 +37,7 @@ server.get("/test/api/orders/shop/realtime/:id", { websocket: true }, async (con
 createConnection().then(async connection => {
   const start = async () => {
     try {
-      await server.listen(PORT);
+      await server.listen(PORT, "0.0.0.0");
       server.swagger();
     } catch(error) {
       server.log.error(error);
