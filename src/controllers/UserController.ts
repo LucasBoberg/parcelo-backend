@@ -2,9 +2,11 @@ import { FastifyInstance } from 'fastify';
 import { Controller, FastifyInstanceToken, getInstanceByToken, GET, POST, PUT, DELETE } from 'fastify-decorators';
 import * as boom from "@hapi/boom";
 import { getManager } from "typeorm";
+import { validate } from "class-validator";
 import * as bcrypt from "bcrypt";
 import { User } from "../db/entities/User";
 import { UserRepository } from "../db/repositories/UserRepository";
+import { AddressRepository } from "../db/repositories/AddressRepository";
 
 @Controller({ route: "/api/users" })
 export default class UserController {
@@ -47,7 +49,14 @@ export default class UserController {
       user.email = body.email;
       user.password = hashedPassword;
       user.addresses = [];
-      await userRepository.save(user);
+
+      const errors = await validate(user);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await userRepository.save(user);
+      }
+
       return user;
     } catch (error) {
       throw boom.boomify(error);
@@ -81,6 +90,94 @@ export default class UserController {
           message: "Auth failed"
         });
       }
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @POST({ url: "/:id/addresses", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "addressId": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async addAddressToUser(request, reply) {
+    try {
+      const id = request.params.id;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const addressRepository = await getManager().getCustomRepository(AddressRepository);
+      const body = request.body;
+      const user = await userRepository.findOneOrFail(id, { relations: ["addresses"] });
+      const address = await addressRepository.findOneOrFail(body.addressId);
+
+      const addressIds = [];
+      for (const addressData of user.addresses) {
+        addressIds.push(addressData.id);
+      }
+
+      if (!addressIds.includes(address.id)) {
+        user.addresses.push(address);
+      } else {
+        throw boom.boomify(new Error("Address already added")); 
+      }
+  
+      const errors = await validate(user);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await userRepository.save(user);
+      }
+      
+      return user;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @DELETE({ url: "/:id/addresses", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "addressId": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async removeAddressFromUser(request, reply) {
+    try {
+      const id = request.params.id;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const addressRepository = await getManager().getCustomRepository(AddressRepository);
+      const body = request.body;
+      const user = await userRepository.findOneOrFail(id, { relations: ["addresses"] });
+      const address = await addressRepository.findOneOrFail(body.addressId);
+      const addressIds = [];
+      for (const addressData of user.addresses) {
+        addressIds.push(addressData.id);
+      }
+
+      if (addressIds.includes(address.id)) {
+        const index = addressIds.indexOf(address.id, 0);
+        user.addresses.splice(index, 1);
+      } else {
+        throw boom.boomify(new Error("Address is not associated to shop")); 
+      }
+  
+      const errors = await validate(user);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await userRepository.save(user);
+      }
+      
+      return user;
     } catch (error) {
       throw boom.boomify(error);
     }
