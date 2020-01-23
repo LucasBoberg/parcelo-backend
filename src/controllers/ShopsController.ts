@@ -4,7 +4,9 @@ import { getManager } from "typeorm";
 import { validate } from "class-validator";
 import { Shop } from "../db/entities/Shop";
 import { ShopRepository } from "../db/repositories/ShopRepository";
+import { AddressRepository } from "../db/repositories/AddressRepository";
 import slugify from "slugify";
+import { Address } from '../db/entities/Address';
 
 @Controller({ route: "/api/shops" })
 export default class ShopsController {
@@ -85,6 +87,9 @@ export default class ShopsController {
         },
         "banner": {
           "type": "string"
+        },
+        "exclusive": {
+          "type": "boolean"
         }
       }
     }
@@ -152,6 +157,94 @@ export default class ShopsController {
       }
   
       return shopData;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @POST({ url: "/:id/addresses", options: { schema: { 
+    tags: ["shop"],
+    body: {
+      "type": "object",
+      "properties": {
+        "addressId": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async addAddressToShop(request, reply) {
+    try {
+      const id = request.params.id;
+      const shopRepository = await getManager().getCustomRepository(ShopRepository);
+      const addressRepository = await getManager().getCustomRepository(AddressRepository);
+      const body = request.body;
+      const shop = await shopRepository.findOneOrFail(id, { relations: ["addresses"] });
+      const address = await addressRepository.findOneOrFail(body.addressId);
+
+      const addressIds = [];
+      for (const addressData of shop.addresses) {
+        addressIds.push(addressData.id);
+      }
+
+      if (!addressIds.includes(address.id)) {
+        shop.addresses.push(address);
+      } else {
+        throw boom.boomify(new Error("Address already added")); 
+      }
+  
+      const errors = await validate(shop);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await shopRepository.save(shop);
+      }
+      
+      return shop;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @DELETE({ url: "/:id/addresses", options: { schema: { 
+    tags: ["shop"],
+    body: {
+      "type": "object",
+      "properties": {
+        "addressId": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async removeAddressFromShop(request, reply) {
+    try {
+      const id = request.params.id;
+      const shopRepository = await getManager().getCustomRepository(ShopRepository);
+      const addressRepository = await getManager().getCustomRepository(AddressRepository);
+      const body = request.body;
+      const shop = await shopRepository.findOneOrFail(id, { relations: ["addresses"] });
+      const address = await addressRepository.findOneOrFail(body.addressId);
+      const addressIds = [];
+      for (const addressData of shop.addresses) {
+        addressIds.push(addressData.id);
+      }
+
+      if (addressIds.includes(address.id)) {
+        const index = addressIds.indexOf(address.id, 0);
+        shop.addresses.splice(index, 1);
+      } else {
+        throw boom.boomify(new Error("Address is not associated to shop")); 
+      }
+  
+      const errors = await validate(shop);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await shopRepository.save(shop);
+      }
+      
+      return shop;
     } catch (error) {
       throw boom.boomify(error);
     }

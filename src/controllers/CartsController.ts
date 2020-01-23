@@ -159,7 +159,7 @@ export default class CartsController {
       const product = await productRepository.findOneOrFail(productId);
 
       if (cart.products.includes(product)) {
-        const index = cart.products.indexOf(product, 0)
+        const index = cart.products.indexOf(product, 0);
         cart.products.splice(index, 1);
       } else {
         throw boom.boomify(new Error("Product is not in cart"));

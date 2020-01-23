@@ -2,9 +2,9 @@
    "type": "postgres",
    "host": "localhost",
    "port": 5432,
-   "username": "lboberg",
+   "username": "lucasboberg",
    "password": "",
-   "database": "delivery_dev",
+   "database": "parcelo",
    "synchronize": true,
    "logging": false,
    "entities": [

@@ -43,16 +43,16 @@ export class Product {
   @Column({ default: false })
   exclusive: boolean;
 
-  @Column()
+  @Column("float")
   width: number;
 
-  @Column()
+  @Column("float")
   height: number;
 
-  @Column()
+  @Column("float")
   depth: number;
 
-  @Column()
+  @Column("float")
   weight: number;
 
   @Column("simple-array")

@@ -109,6 +109,12 @@ export default class ProductsController {
         "description": {
           "type": "string"
         },
+        "color": {
+          "type": "string"
+        },
+        "exclusive": {
+          "type": "boolean"
+        },
         "width": {
           "type": "string"
         },
@@ -180,11 +186,12 @@ export default class ProductsController {
       product.manufacturer = body.manufacturer;
       product.description = body.description;
       product.color = body.color;
+      product.exclusive = body.exclusive;
       product.multiFunction = body.multiFunction;
-      product.width = parseFloat(body.width);
-      product.height = parseFloat(body.height);
-      product.depth = parseFloat(body.depth);
-      product.weight = parseFloat(body.weight);
+      product.width = Number(body.width);
+      product.height = Number(body.height);
+      product.depth = Number(body.depth);
+      product.weight = Number(body.weight);
       product.details = body.details;
       product.images = body.images;
       product.alternatives = body.alternatives;
