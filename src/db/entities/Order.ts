@@ -1,12 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, PrimaryColumn, ManyToOne, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./User";
 import { ProductOrder } from "../../classes/ProductOrder";
 import { ShopOrder } from "../../classes/ShopOrder";
 import { LocationOrder } from "../../classes/LocationOrder";
+import * as generate from "nanoid/generate";
+import * as dictionary from "nanoid-dictionary/numbers";
 
 @Entity()
 export class Order {
-  @PrimaryGeneratedColumn("uuid")
+  //@PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn('varchar', { default: () => `'${generate(dictionary, 8)}'` })
   orderNumber: number;
 
   @Column()

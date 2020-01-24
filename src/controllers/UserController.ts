@@ -35,7 +35,26 @@ export default class UserController {
     }
   }
 
-  @POST({ url: "/signup", options: { schema: { tags: ["user"] }}})
+  @POST({ url: "/signup", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
   async signUp(request, reply) {
     try {
       const body = request.body;
@@ -63,7 +82,20 @@ export default class UserController {
     }
   }
 
-  @POST({ url: "/signin", options: { schema: { tags: ["user"] }}})
+  @POST({ url: "/signin", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
   async signIn(request, reply) {
     try {
       const body = request.body;

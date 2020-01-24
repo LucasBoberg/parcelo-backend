@@ -32,6 +32,8 @@
       "fastify-swagger": "^2.4.0",
       "fastify-websocket": "^1.1.0",
       "lodash": "^4.17.15",
+      "nanoid": "^2.1.10",
+      "nanoid-dictionary": "^3.0.0",
       "node-geocoder": "^3.25.0",
       "pg": "^7.11.0",
       "pino-pretty": "^3.2.2",

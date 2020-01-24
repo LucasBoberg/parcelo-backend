@@ -82,7 +82,7 @@ export default class OrdersController {
             "type": "string"
           }
         },
-        "address": {
+        "addresses": {
           "type": "array",
           "items": {
             "type": "string"
@@ -119,7 +119,7 @@ export default class OrdersController {
         const shopOrder = await convertShop(shop);
         order.shops.push(shopOrder);
       }
-      for (const addressId of body.locations) {
+      for (const addressId of body.addresses) {
         const address = await addressRepository.findOneOrFail(addressId);
         const locationOrder = await convertLocation(address);
         order.locations.push(locationOrder);
