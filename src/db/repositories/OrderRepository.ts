@@ -9,7 +9,7 @@ export class OrderRepository extends Repository<Order> {
   }
 
   findByShopId(shopId: string) {
-    return this.find({ where: { shops: Like("%" + shopId + "%") }});
+    return this.find({ where: { shops: Like('%"' + shopId + '"%') }});
   }
 
   findByShopIdAndStatus(shopId: string, status: string) {

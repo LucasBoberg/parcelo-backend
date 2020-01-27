@@ -14,5 +14,5 @@ export enum ShopStatus {
 }
 
 export function convertShop(shop: Shop): ShopOrder {
-  return new ShopOrder(String(shop.id), shop.slug, shop.name, shop.logo, shop.type, "waiting");
+  return new ShopOrder(String(shop.id), shop.slug, shop.name, shop.logo, shop.type, "waiting", []);
 }

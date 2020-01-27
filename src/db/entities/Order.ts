@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, PrimaryColumn, ManyToOne, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./User";
-import { ProductOrder } from "../../classes/ProductOrder";
 import { ShopOrder } from "../../classes/ShopOrder";
 import { LocationOrder } from "../../classes/LocationOrder";
 import * as generate from "nanoid/generate";
@@ -20,9 +19,6 @@ export class Order {
 
   @ManyToOne(type => User, user => user.orders)
   user: User;
-
-  @Column("simple-json")
-  products: ProductOrder[];
 
   @Column("simple-json")
   shops: ShopOrder[];

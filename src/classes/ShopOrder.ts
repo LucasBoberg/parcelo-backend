@@ -1,3 +1,5 @@
+import { ProductOrder } from "./ProductOrder";
+
 export class ShopOrder {
   id: string;
   slug: string;
@@ -5,13 +7,15 @@ export class ShopOrder {
   logo: string;
   type: string;
   status: string;
+  products: ProductOrder[];
 
-  constructor(id: string, slug: string, name: string, logo: string, type: string, status: string) {
+  constructor(id: string, slug: string, name: string, logo: string, type: string, status: string, products: ProductOrder[]) {
     this.id = id;
     this.slug = slug;
     this.name = name;
     this.logo = logo;
     this.type = type;
     this.status = status;
+    this.products = products;
   }
 }

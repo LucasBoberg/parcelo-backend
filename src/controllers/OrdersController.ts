@@ -35,6 +35,7 @@ export default class OrdersController {
       const id = request.params.id;
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
       const orders = await orderRepository.findByShopId(id);
+
       return orders;
     } catch (error) {
       throw boom.boomify(error);
@@ -68,6 +69,9 @@ export default class OrdersController {
             "type": "object",
             "properties": {
               "id": {
+                "type": "string"
+              },
+              "shopId": {
                 "type": "string"
               },
               "price": {
@@ -105,19 +109,21 @@ export default class OrdersController {
       order.user = user;
       order.total = 0;
       order.currency = body.currency;
-      order.products = [];
       order.shops = [];
       order.locations = [];
-      for (const productData of body.products) {
-        const product = await productRepository.findOneOrFail(productData.id);
-        const productOrder = await convertProduct(product, Number(productData.price), body.currency);
-        order.total = order.total + Number(productData.price);
-        order.products.push(productOrder);
-      }
       for (const shopId of body.shops) {
         const shop = await shopRepository.findOneOrFail(shopId);
         const shopOrder = await convertShop(shop);
         order.shops.push(shopOrder);
+      }
+      for (const productData of body.products) {
+        const product = await productRepository.findOneOrFail(productData.id);
+        const productOrder = await convertProduct(product, Number(productData.price), body.currency);
+        order.total = order.total + Number(productData.price);
+        const shopIndex = await order.shops.findIndex(({ id }) => id === productData.shopId);
+        console.log(shopIndex);
+        console.log(order.shops[shopIndex]);
+        order.shops[shopIndex].products.push(productOrder);
       }
       for (const addressId of body.addresses) {
         const address = await addressRepository.findOneOrFail(addressId);
@@ -148,10 +154,6 @@ export default class OrdersController {
   
       if (body.currency != null) {
         orderData.currency = body.currency;
-      }
-  
-      if (body.products != null) {
-        orderData.products = body.products;
       }
 
       if (body.shops != null) {
@@ -212,6 +214,7 @@ export default class OrdersController {
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
       setIntervalAsync(async () => {
         const orders = await orderRepository.findByShopId(id);
+
         connection.socket.send(JSON.stringify(orders))
       }, 3000);
     } catch (error) {
