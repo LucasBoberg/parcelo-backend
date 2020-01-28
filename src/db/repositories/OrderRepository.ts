@@ -5,14 +5,17 @@ import { Order } from "../entities/Order";
 export class OrderRepository extends Repository<Order> {
 
   findByStatus(status: string) {
-    return this.find({ where:  { shops: Like("%'" + status + "'%") }});
+    return this.find({ where:  { shops: Like("%" + status + "%") }});
   }
 
   findByShopId(shopId: string) {
-    return this.find({ where: { shops: Like('%"' + shopId + '"%') }});
+    return this.find({ where:  { shops: Like("%" + shopId + "%") }});
   }
 
   findByShopIdAndStatus(shopId: string, status: string) {
-    return this.find({ where: { shops: Like(["%" + shopId + "%", "%'" + status + "'%"]) }});
+    return this.find({ where: [
+      { shops: Like("%" + shopId + "%") },
+      { shops: Like("%" + status + "%") }
+    ]});
   }
 }

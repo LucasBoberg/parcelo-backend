@@ -35,7 +35,18 @@ export default class OrdersController {
       const id = request.params.id;
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
       const orders = await orderRepository.findByShopId(id);
+      return orders;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
 
+  @GET({ url: "/status/:status", options: { schema: { tags: ["order"] }}})
+  async getOrdersByStatus(request, reply) {
+    try {
+      const status = request.params.status;
+      const orderRepository = await getManager().getCustomRepository(OrderRepository);
+      const orders = await orderRepository.findByStatus(status);
       return orders;
     } catch (error) {
       throw boom.boomify(error);
@@ -50,6 +61,32 @@ export default class OrdersController {
       const order = await orderRepository.findOneOrFail(id);
     
       return order;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @GET({ url: "/shop/:shopId/:orderNumber", options: { schema: { tags: ["order"] }}})
+  async getSingleOrderByShop(request, reply) {
+    try {
+      const shopId = request.params.shopId;
+      const orderNumber = request.params.orderNumber;
+      const orderRepository = await getManager().getCustomRepository(OrderRepository);
+      const order = await orderRepository.findOneOrFail(orderNumber);
+
+      const shopIndex = await order.shops.findIndex(({ id }) => id === shopId);
+
+      const smallOrder = {
+        orderNumber: order.orderNumber,
+        status: order.shops[shopIndex].status,
+        currency: order.currency,
+        productCount: order.shops[shopIndex].products.length,
+        products: order.shops[shopIndex].products,
+        updatedAt: order.updatedAt,
+        createdAt: order.createdAt
+      }
+    
+      return smallOrder;
     } catch (error) {
       throw boom.boomify(error);
     }
@@ -121,8 +158,6 @@ export default class OrdersController {
         const productOrder = await convertProduct(product, Number(productData.price), body.currency);
         order.total = order.total + Number(productData.price);
         const shopIndex = await order.shops.findIndex(({ id }) => id === productData.shopId);
-        console.log(shopIndex);
-        console.log(order.shops[shopIndex]);
         order.shops[shopIndex].products.push(productOrder);
       }
       for (const addressId of body.addresses) {
@@ -205,17 +240,32 @@ export default class OrdersController {
       throw boom.boomify(error);
     }
   }
-  @GET({ url: "/shop/realtime/:id", options: { websocket: true, schema: {
+  @GET({ url: "/shop/realtime/:shopId", options: { websocket: true, schema: {
     tags: ["order"]
   }}})
   async getRealtimeOrdersByShop(connection, request, params) {
     try {
-      const id = await params.id;
+      const shopId = await params.shopId;
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
       setIntervalAsync(async () => {
-        const orders = await orderRepository.findByShopId(id);
+        const orders = await orderRepository.findByShopId(shopId);
 
-        connection.socket.send(JSON.stringify(orders))
+        const smallOrders = [];
+
+        for (const order of orders) {
+          const shopIndex = await order.shops.findIndex(({ id }) => id === shopId);
+          const smallOrder = {
+            orderNumber: order.orderNumber,
+            status: order.shops[shopIndex].status,
+            currency: order.currency,
+            updatedAt: order.updatedAt,
+            createdAt: order.createdAt,
+            productCount: order.shops[shopIndex].products.length
+          }
+          smallOrders.push(smallOrder);
+        }
+
+        connection.socket.send(JSON.stringify(smallOrders));
       }, 3000);
     } catch (error) {
       throw boom.boomify(error);
