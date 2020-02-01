@@ -15,7 +15,28 @@ export default class ProductsController {
     try {
       const productRepository = await getManager().getCustomRepository(ProductRepository);
       const products = await productRepository.find({ relations: ["categories", "prices", "reviews"] });
-      return products;
+      const smallProducts = [];
+
+      products.forEach((product) => {
+        const smallProduct = {
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          manufacturer: product.manufacturer,
+          description: product.description,
+          color: product.color,
+          image: product.images[0],
+          categories: product.categories,
+          price: product.prices,
+          reviews: product.reviews,
+          barcode: product.barcode,
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt
+        }
+        smallProducts.push(smallProduct);
+      });
+
+      return smallProducts;
     } catch (error) {
       throw boom.boomify(error);
     }
