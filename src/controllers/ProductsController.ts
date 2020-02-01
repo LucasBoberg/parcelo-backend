@@ -14,7 +14,7 @@ export default class ProductsController {
   async getProducts(request, reply) {
     try {
       const productRepository = await getManager().getCustomRepository(ProductRepository);
-      const products = await productRepository.find({ relations: ["categories", "prices", "reviews"] });
+      const products = await productRepository.find({ relations: ["categories", "prices", "reviews", "prices.shop"] });
       const smallProducts = [];
 
       products.forEach((product) => {

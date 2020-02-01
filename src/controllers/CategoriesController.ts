@@ -24,9 +24,37 @@ export default class CategoriesController {
     try {
       const slug = request.params.slug;
       const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
-      const category = await categoryRepository.findOneOrFail(slug, { relations: ["products"] });
+      const category = await categoryRepository.findOneOrFail(slug, { relations: ["products", "products.prices", "products.prices.shop"] });
+      const smallProducts = [];
+
+      category.products.forEach((product) => {
+        const smallProduct = {
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          manufacturer: product.manufacturer,
+          description: product.description,
+          color: product.color,
+          image: product.images[0],
+          categories: product.categories,
+          price: product.prices,
+          reviews: product.reviews,
+          barcode: product.barcode,
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt
+        }
+        smallProducts.push(smallProduct);
+      });
+
+      const smallCategory = {
+        slug: category.slug,
+        name: category.name,
+        products: smallProducts,
+        updatedAt: category.updatedAt,
+        createdAt: category.createdAt
+      }
     
-      return category;
+      return smallCategory;
     } catch (error) {
       throw boom.boomify(error);
     }
