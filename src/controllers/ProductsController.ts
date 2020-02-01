@@ -64,6 +64,7 @@ export default class ProductsController {
         depth: product.depth,
         weight: product.weight,
         images: product.images,
+        details: product.details,
         alternatives: productAlternatives,
         categories: product.categories,
         prices: completePrices,
