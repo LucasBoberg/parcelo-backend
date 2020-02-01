@@ -20,9 +20,6 @@ export class Product {
   name: string;
 
   @Column()
-  serialNumber: string;
-
-  @Column()
   manufacturer: string;
 
   @Column()

@@ -39,7 +39,6 @@ export default class ShopsController {
               id: priceInformation.product.id,
               slug: priceInformation.product.slug,
               name: priceInformation.product.name,
-              serialNumber: priceInformation.product.serialNumber,
               manufacturer: priceInformation.product.manufacturer,
               description: priceInformation.product.description,
               image: priceInformation.product.images[0]

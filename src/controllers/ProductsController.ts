@@ -75,7 +75,6 @@ export default class ProductsController {
         id: product.id,
         slug: product.slug,
         name: product.name,
-        serialNumber: product.serialNumber,
         manufacturer: product.manufacturer,
         description: product.description,
         color: product.color,
@@ -120,9 +119,6 @@ export default class ProductsController {
       type: "object",
       properties: {
         "name": {
-          "type": "string"
-        },
-        "serialNumber": {
           "type": "string"
         },
         "manufacturer": {
@@ -204,7 +200,6 @@ export default class ProductsController {
       const product = new Product();
       product.name = body.name;
       product.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
-      product.serialNumber = body.serialNumber;
       product.manufacturer = body.manufacturer;
       product.description = body.description;
       product.color = body.color;
@@ -264,10 +259,6 @@ export default class ProductsController {
         productData.name = body.name;
         productData.slug = slugify(body.name, {lower: true, remove: /[*+~.()'"!:@]/g});
       }
-  
-      if (body.serialNumber != null) {
-        productData.serialNumber = body.serialNumber;
-      } 
   
       if (body.manufacturer != null) {
         productData.manufacturer = body.manufacturer;
