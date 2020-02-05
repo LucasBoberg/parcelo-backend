@@ -42,6 +42,9 @@ export class User {
   @OneToMany(type => Order, order => order.user)
   orders: Order[];
 
+  @OneToMany(type => Order, order => order.deliverer)
+  deliveries: Order[];
+
   @OneToMany(type => ProductReview, productReview => productReview.user)
   productReviews: ProductReview[];
 

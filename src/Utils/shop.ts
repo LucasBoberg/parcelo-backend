@@ -8,6 +8,8 @@ export enum ShopType {
 
 export enum ShopStatus {
   WAITING = "waiting",
+  PREPARING = "preparing",
+  PENDING = "pending",
   ACCEPTED = "accepted",
   REJECTED = "rejected",
   COMPLETED = "completed"

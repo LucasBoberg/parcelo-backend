@@ -7,6 +7,7 @@ export class ShopOrder {
   logo: string;
   type: string;
   status: string;
+  pickupTime: Date;
   products: ProductOrder[];
 
   constructor(id: string, slug: string, name: string, logo: string, type: string, status: string, products: ProductOrder[]) {
@@ -16,6 +17,7 @@ export class ShopOrder {
     this.logo = logo;
     this.type = type;
     this.status = status;
+    this.pickupTime = null;
     this.products = products;
   }
 }

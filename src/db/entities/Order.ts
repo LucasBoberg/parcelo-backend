@@ -20,6 +20,9 @@ export class Order {
   @ManyToOne(type => User, user => user.orders)
   user: User;
 
+  @ManyToOne(type => User, user => user.deliveries, { nullable: true })
+  deliverer: User;
+
   @Column("simple-json")
   shops: ShopOrder[];
 

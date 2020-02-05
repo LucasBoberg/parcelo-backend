@@ -22,7 +22,7 @@ export default class OrdersController {
   async getOrders(request, reply) {
     try {
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
-      const orders = await orderRepository.find();
+      const orders = await orderRepository.find({ relations: ["user", "deliverer"] });
       return orders;
     } catch (error) {
       throw boom.boomify(error);
@@ -34,7 +34,7 @@ export default class OrdersController {
     try {
       const id = request.params.id;
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
-      const orders = await orderRepository.findByShopId(id);
+      const orders = await orderRepository.findByShopId(id, ["user", "deliverer"]);
       return orders;
     } catch (error) {
       throw boom.boomify(error);
@@ -46,7 +46,7 @@ export default class OrdersController {
     try {
       const status = request.params.status;
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
-      const orders = await orderRepository.findByStatus(status);
+      const orders = await orderRepository.findByStatus(status, ["user", "deliverer"]);
       return orders;
     } catch (error) {
       throw boom.boomify(error);
@@ -58,7 +58,7 @@ export default class OrdersController {
     try {
       const id = request.params.id;
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
-      const order = await orderRepository.findOneOrFail(id);
+      const order = await orderRepository.findOneOrFail(id, { relations: ["user", "deliverer"] });
     
       return order;
     } catch (error) {
@@ -72,13 +72,30 @@ export default class OrdersController {
       const shopId = request.params.shopId;
       const orderNumber = request.params.orderNumber;
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
-      const order = await orderRepository.findOneOrFail(orderNumber);
+      const order = await orderRepository.findOneOrFail(orderNumber, { relations: ["user", "deliverer"] });
 
       const shopIndex = await order.shops.findIndex(({ id }) => id === shopId);
 
+      let deliverer = null;
+          
+      if (order.deliverer !== null) {
+        deliverer = {
+          id: order.deliverer.id,
+          name: order.deliverer.firstName,
+          email: order.deliverer.email
+        }
+      }
+
       const smallOrder = {
         orderNumber: order.orderNumber,
+        user: {
+          id: order.user.id,
+          name: order.user.firstName,
+          email: order.user.email
+        },
         status: order.shops[shopIndex].status,
+        deliverer: deliverer,
+        pickupTime: order.shops[shopIndex].pickupTime,
         currency: order.currency,
         productCount: order.shops[shopIndex].products.length,
         products: order.shops[shopIndex].products,
@@ -179,6 +196,32 @@ export default class OrdersController {
     }
   }
 
+  @PUT({ url: "/shop/:shopId/:orderNumber", options: { schema: { tags: ["order"] }}})
+  async updateOrderStatus(request, reply) {
+    try {
+      const shopId = request.params.shopId;
+      const orderNumber = request.params.orderNumber;
+      const orderRepository = await getManager().getCustomRepository(OrderRepository);
+      const status = request.body.status;
+      const orderData = await orderRepository.findOneOrFail(orderNumber);
+
+      const shopIndex = await orderData.shops.findIndex(({ id }) => id === shopId);
+
+      orderData.shops[shopIndex].status = status;
+
+      const errors = await validate(orderData);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await orderRepository.save(orderData);
+      }
+  
+      return { message: orderNumber + "'s status was updated to " + status };
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
   @PUT({ url: "/:id", options: { schema: { tags: ["order"] }}})
   async updateOrder(request, reply) {
     try {
@@ -230,6 +273,7 @@ export default class OrdersController {
   }}})
   async getRealtimeOrders(connection, request, params) {
     try {
+      console.log("Connected");
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
       setIntervalAsync(async () => {
         const orders = await orderRepository.find();
@@ -247,20 +291,39 @@ export default class OrdersController {
     try {
       const shopId = await params.shopId;
       const orderRepository = await getManager().getCustomRepository(OrderRepository);
+      console.log("Connected");
       setIntervalAsync(async () => {
-        const orders = await orderRepository.findByShopId(shopId);
+        const orders = await orderRepository.findByShopId(shopId, ["user", "deliverer"]);
 
         const smallOrders = [];
 
         for (const order of orders) {
           const shopIndex = await order.shops.findIndex(({ id }) => id === shopId);
+
+          let deliverer = null;
+          
+          if (order.deliverer !== null) {
+            deliverer = {
+              id: order.deliverer.id,
+              name: order.deliverer.firstName,
+              email: order.deliverer.email
+            }
+          }
+
           const smallOrder = {
             orderNumber: order.orderNumber,
+            user: {
+              id: order.user.id,
+              name: order.user.firstName,
+              email: order.user.email
+            },
             status: order.shops[shopIndex].status,
+            deliverer: deliverer,
+            pickupTime: order.shops[shopIndex].pickupTime,
             currency: order.currency,
+            productCount: order.shops[shopIndex].products.length,
             updatedAt: order.updatedAt,
             createdAt: order.createdAt,
-            productCount: order.shops[shopIndex].products.length
           }
           smallOrders.push(smallOrder);
         }
@@ -268,6 +331,7 @@ export default class OrdersController {
         connection.socket.send(JSON.stringify(smallOrders));
       }, 3000);
     } catch (error) {
+      console.log("Problem");
       throw boom.boomify(error);
     }
   }
