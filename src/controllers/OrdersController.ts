@@ -76,11 +76,15 @@ export default class OrdersController {
 
       const shopIndex = await order.shops.findIndex(({ id }) => id === shopId);
 
-      let deliverer = null;
+      let deliverer = {
+        id: "null",
+        name: "null",
+        email: "null"
+      };
           
       if (order.deliverer !== null) {
         deliverer = {
-          id: order.deliverer.id,
+          id: order.deliverer.id.toString(),
           name: order.deliverer.firstName,
           email: order.deliverer.email
         }
@@ -300,11 +304,15 @@ export default class OrdersController {
         for (const order of orders) {
           const shopIndex = await order.shops.findIndex(({ id }) => id === shopId);
 
-          let deliverer = null;
+          let deliverer = {
+            id: "null",
+            name: "null",
+            email: "null"
+          };
           
           if (order.deliverer !== null) {
             deliverer = {
-              id: order.deliverer.id,
+              id: order.deliverer.id.toString(),
               name: order.deliverer.firstName,
               email: order.deliverer.email
             }
