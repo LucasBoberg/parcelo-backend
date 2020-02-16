@@ -121,11 +121,21 @@ export default class CartsController {
     }
   }
 
-  @POST({ url: "/:id/add/:productId", options: { schema: { tags: ["cart"] }}})
+  @POST({ url: "/:id/add", options: { schema: {
+    tags: ["cart"],
+    body: {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
   async addProduct(request, reply) {
     try {
       const id = request.params.id;
-      const productId = request.params.productId;
+      const productId = request.body.productId;
       const cartRepository = await getManager().getCustomRepository(CartRepository);
       const productRepository = await getManager().getCustomRepository(ProductRepository);
       const cart = await cartRepository.findOneOrFail(id);
@@ -148,11 +158,21 @@ export default class CartsController {
     }
   }
 
-  @DELETE({ url: "/:id/remove/:productId", options: { schema: { tags: ["cart"] }}})
+  @DELETE({ url: "/:id/remove", options: { schema: { 
+    tags: ["cart"],
+    body: {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string"
+        }
+      }
+    } 
+  }}})
   async removeProduct(request, reply) {
     try {
       const id = request.params.id;
-      const productId = request.params.productId;
+      const productId = request.body.productId;
       const cartRepository = await getManager().getCustomRepository(CartRepository);
       const productRepository = await getManager().getCustomRepository(ProductRepository);
       const cart = await cartRepository.findOneOrFail(id);
