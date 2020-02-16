@@ -200,7 +200,7 @@ export default class OrdersController {
     }
   }
 
-  @PUT({ url: "/shop/:shopId/:orderNumber", options: { schema: { tags: ["order"] }}})
+  @PUT({ url: "/shop/:shopId/:orderNumber", options: { schema: { tags: ["order"], description: "Update status of order per shop" }}})
   async updateOrderStatus(request, reply) {
     try {
       const shopId = request.params.shopId;

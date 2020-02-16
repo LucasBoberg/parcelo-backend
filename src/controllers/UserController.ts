@@ -7,6 +7,7 @@ import * as bcrypt from "bcrypt";
 import { User } from "../db/entities/User";
 import { UserRepository } from "../db/repositories/UserRepository";
 import { AddressRepository } from "../db/repositories/AddressRepository";
+import { ProductRepository } from '../db/repositories/ProductRepository';
 
 @Controller({ route: "/api/users" })
 export default class UserController {
@@ -200,6 +201,230 @@ export default class UserController {
         user.addresses.splice(index, 1);
       } else {
         throw boom.boomify(new Error("Address is not associated to shop")); 
+      }
+  
+      const errors = await validate(user);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await userRepository.save(user);
+      }
+      
+      return user;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+  
+  @GET({ url: "/:id/favorites", options: { schema: { tags: ["user"] }}})
+  async getFavorites(request, reply) {
+    try {
+      const id = request.params.id;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const productRepository = await getManager().getCustomRepository(ProductRepository);
+      const user = await userRepository.findOneOrFail(id);
+
+      const products = await productRepository.findByIds(user.favorites);
+
+      const smallProducts = [];
+
+      products.forEach((product) => {
+        const smallProduct = {
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          manufacturer: product.manufacturer,
+          description: product.description,
+          color: product.color,
+          image: product.images[0],
+          categories: product.categories,
+          price: product.prices,
+          reviews: product.reviews,
+          barcode: product.barcode,
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt
+        }
+        smallProducts.push(smallProduct);
+      });
+
+      return smallProducts;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @POST({ url: "/:id/favorites", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async addFavoriteToUser(request, reply) {
+    try {
+      const id = request.params.id;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const body = request.body;
+      const user = await userRepository.findOneOrFail(id);
+
+      if (!user.favorites.includes(body.productId)) {
+        user.favorites.push(body.productId);
+      } else {
+        throw boom.boomify(new Error("Product is already favorited")); 
+      }
+  
+      const errors = await validate(user);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await userRepository.save(user);
+      }
+      
+      return user;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @DELETE({ url: "/:id/favorites", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async removeFavoriteFromUser(request, reply) {
+    try {
+      const id = request.params.id;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const body = request.body;
+      const user = await userRepository.findOneOrFail(id);
+
+      if (user.favorites.includes(body.productId)) {
+        const index = user.favorites.findIndex(id => id === body.productId);
+        user.favorites.splice(index, 1);
+      } else {
+        throw boom.boomify(new Error("Product is not favorited")); 
+      }
+  
+      const errors = await validate(user);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await userRepository.save(user);
+      }
+      
+      return user;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @GET({ url: "/:id/recents", options: { schema: { tags: ["user"] }}})
+  async getRecents(request, reply) {
+    try {
+      const id = request.params.id;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const productRepository = await getManager().getCustomRepository(ProductRepository);
+      const user = await userRepository.findOneOrFail(id);
+
+      const products = await productRepository.findByIds(user.recents);
+
+      const smallProducts = [];
+
+      products.forEach((product) => {
+        const smallProduct = {
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          manufacturer: product.manufacturer,
+          description: product.description,
+          color: product.color,
+          image: product.images[0],
+          categories: product.categories,
+          price: product.prices,
+          reviews: product.reviews,
+          barcode: product.barcode,
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt
+        }
+        smallProducts.push(smallProduct);
+      });
+
+      return smallProducts;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @POST({ url: "/:id/recents", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async addRecentToUser(request, reply) {
+    try {
+      const id = request.params.id;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const body = request.body;
+      const user = await userRepository.findOneOrFail(id);
+
+      if (!user.recents.includes(body.productId)) {
+        user.recents.push(body.productId);
+      } else {
+        throw boom.boomify(new Error("Product is already in recents")); 
+      }
+  
+      const errors = await validate(user);
+      if (errors.length > 0) {
+        throw boom.boomify(new Error(errors.toString())); 
+      } else {
+        await userRepository.save(user);
+      }
+      
+      return user;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @DELETE({ url: "/:id/recents", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async removeRecentFromUser(request, reply) {
+    try {
+      const id = request.params.id;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const body = request.body;
+      const user = await userRepository.findOneOrFail(id);
+
+      if (user.recents.includes(body.productId)) {
+        const index = user.recents.findIndex(id => id === body.productId);
+        user.recents.splice(index, 1);
+      } else {
+        throw boom.boomify(new Error("Product is not in recents")); 
       }
   
       const errors = await validate(user);

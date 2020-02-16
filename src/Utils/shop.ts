@@ -11,7 +11,7 @@ export enum ShopStatus {
   PREPARING = "preparing",
   PENDING = "pending",
   ACCEPTED = "accepted",
-  REJECTED = "rejected",
+  DECLINED = "declined",
   COMPLETED = "completed"
 }
 

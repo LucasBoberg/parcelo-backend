@@ -45,6 +45,12 @@ export class User {
   @OneToMany(type => Order, order => order.deliverer)
   deliveries: Order[];
 
+  @Column("simple-array", { nullable: true, default: "" })
+  favorites: string[];
+
+  @Column("simple-array", { nullable: true, default: "" })
+  recents: string[];
+
   @OneToMany(type => ProductReview, productReview => productReview.user)
   productReviews: ProductReview[];
 
