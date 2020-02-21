@@ -178,7 +178,7 @@ export default class OrdersController {
         const product = await productRepository.findOneOrFail(productData.id);
         const productOrder = await convertProduct(product, Number(productData.price), body.currency);
         order.total = order.total + Number(productData.price);
-        const shopIndex = await order.shops.findIndex(({ id }) => id === productData.shopId);
+        const shopIndex = order.shops.findIndex(({ id }) => id === productData.shopId);
         order.shops[shopIndex].products.push(productOrder);
       }
       for (const addressId of body.addresses) {

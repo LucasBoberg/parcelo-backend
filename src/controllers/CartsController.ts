@@ -16,8 +16,37 @@ export default class CartsController {
       const id = request.params.id;
       const cartRepository = await getManager().getCustomRepository(CartRepository);
       const cart = await cartRepository.findOneOrFail(id, { relations: ["products", "user"] });
+
+      const smallProducts = [];
+
+      cart.products.forEach((product) => {
+        const smallProduct = {
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          manufacturer: product.manufacturer,
+          description: product.description,
+          color: product.color,
+          image: product.images[0],
+          categories: product.categories,
+          price: product.prices,
+          reviews: product.reviews,
+          barcode: product.barcode,
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt
+        }
+        smallProducts.push(smallProduct);
+      });
+
+      const smallCart = {
+        id: cart.id,
+        total: cart.total,
+        currency: cart.currency,
+        products: smallProducts,
+        userId: cart.user.id
+      }
     
-      return cart;
+      return smallCart;
     } catch (error) {
       throw boom.boomify(error);
     }
@@ -56,6 +85,7 @@ export default class CartsController {
       const cart = new Cart();
       cart.currency = body.currency;
       cart.user = user;
+      cart.products = [];
 
       if (body.products != undefined || body.products != null) {
         const productRepository = await getManager().getCustomRepository(ProductRepository);
@@ -101,6 +131,10 @@ export default class CartsController {
 
       if (body.products != undefined || body.products != null) {
         const productRepository = await getManager().getCustomRepository(ProductRepository);
+
+        if (cartData.products === null || cartData.products === undefined) {
+          cartData.products = [];
+        }
   
         for (const productId of body.products) {
           const product = await productRepository.findOneOrFail(productId)
@@ -138,10 +172,15 @@ export default class CartsController {
       const productId = request.body.productId;
       const cartRepository = await getManager().getCustomRepository(CartRepository);
       const productRepository = await getManager().getCustomRepository(ProductRepository);
-      const cart = await cartRepository.findOneOrFail(id);
+      const cart = await cartRepository.findOneOrFail(id, { relations: ["products"] });
       const product = await productRepository.findOneOrFail(productId);
+      if (cart.products === null || cart.products === undefined) {
+        cart.products = [];
+      }
 
-      if (!cart.products.includes(product)) {
+      const added = cart.products.findIndex(({ id }) => id === productId);
+
+      if (added === -1) {
         cart.products.push(product);
       } else {
         throw boom.boomify(new Error("Product already added to cart"));
@@ -153,6 +192,8 @@ export default class CartsController {
       } else {
         await cartRepository.save(cart);
       }
+
+      return { message: product.name + " was added!" }
     } catch (error) {
       throw boom.boomify(error);
     }
@@ -175,10 +216,16 @@ export default class CartsController {
       const productId = request.body.productId;
       const cartRepository = await getManager().getCustomRepository(CartRepository);
       const productRepository = await getManager().getCustomRepository(ProductRepository);
-      const cart = await cartRepository.findOneOrFail(id);
+      const cart = await cartRepository.findOneOrFail(id, { relations: ["products"] });
       const product = await productRepository.findOneOrFail(productId);
 
-      if (cart.products.includes(product)) {
+      if (cart.products === null || cart.products === undefined) {
+        cart.products = [];
+      }
+
+      const added = cart.products.findIndex(({ id }) => id === productId);
+
+      if (added > -1) {
         const index = cart.products.indexOf(product, 0);
         cart.products.splice(index, 1);
       } else {
@@ -191,6 +238,7 @@ export default class CartsController {
       } else {
         await cartRepository.save(cart);
       }
+      return { message: product.name + " was removed!" }
     } catch (error) {
       throw boom.boomify(error);
     }
