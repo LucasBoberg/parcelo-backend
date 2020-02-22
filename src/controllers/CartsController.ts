@@ -15,7 +15,7 @@ export default class CartsController {
     try {
       const id = request.params.id;
       const cartRepository = await getManager().getCustomRepository(CartRepository);
-      const cart = await cartRepository.findOneOrFail(id, { relations: ["products", "user"] });
+      const cart = await cartRepository.findOneOrFail(id, { relations: ["products", "products.prices", "user"] });
 
       const smallProducts = [];
 
@@ -27,7 +27,7 @@ export default class CartsController {
           manufacturer: product.manufacturer,
           description: product.description,
           image: product.images[0],
-          prices: product.prices,
+          prices: product.prices
         }
         smallProducts.push(smallProduct);
       });
@@ -81,7 +81,7 @@ export default class CartsController {
       cart.user = user;
       cart.products = [];
 
-      if (body.products != undefined || body.products != null) {
+      if (body.products !== undefined || body.products !== null) {
         const productRepository = await getManager().getCustomRepository(ProductRepository);
   
         for (const productId of body.products) {
