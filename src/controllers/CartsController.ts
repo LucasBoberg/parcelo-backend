@@ -26,14 +26,8 @@ export default class CartsController {
           name: product.name,
           manufacturer: product.manufacturer,
           description: product.description,
-          color: product.color,
           image: product.images[0],
-          categories: product.categories,
-          price: product.prices,
-          reviews: product.reviews,
-          barcode: product.barcode,
-          createdAt: product.createdAt,
-          updatedAt: product.updatedAt
+          prices: product.prices,
         }
         smallProducts.push(smallProduct);
       });

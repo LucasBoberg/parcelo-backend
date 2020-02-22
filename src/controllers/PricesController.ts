@@ -64,6 +64,7 @@ export default class PricesController {
       const product = await productRepository.findOneOrFail(body.productId);
   
       const price = new Price();
+      price.id = body.productId + "_" + body.shopId;
       price.price = body.price;
       price.currency = body.currency;
       price.shop = shop;

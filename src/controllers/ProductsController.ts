@@ -27,7 +27,7 @@ export default class ProductsController {
           color: product.color,
           image: product.images[0],
           categories: product.categories,
-          price: product.prices,
+          prices: product.prices,
           reviews: product.reviews,
           barcode: product.barcode,
           createdAt: product.createdAt,
