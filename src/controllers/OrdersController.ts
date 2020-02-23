@@ -343,4 +343,65 @@ export default class OrdersController {
       throw boom.boomify(error);
     }
   }
+
+  @GET({ url: "/shop/realtime/:shopId/:status", options: { websocket: true, schema: {
+    tags: ["order"]
+  }}})
+  async getRealtimeOrdersByShopAndStatus(connection, request, params) {
+    try {
+      const shopId = await params.shopId;
+      const status = await params.status;
+      const orderRepository = await getManager().getCustomRepository(OrderRepository);
+      console.log("Connected");
+      setIntervalAsync(async () => {
+        const orders = await orderRepository.findByShopId(shopId, ["user", "deliverer"]);
+
+        const smallOrders = [];
+
+        for (const order of orders) {
+          const shopIndex = await order.shops.findIndex(({ id }) => id === shopId);
+
+          let deliverer = {
+            id: "null",
+            name: "null",
+            email: "null"
+          };
+          
+          if (order.deliverer !== null) {
+            deliverer = {
+              id: order.deliverer.id.toString(),
+              name: order.deliverer.firstName,
+              email: order.deliverer.email
+            }
+          }
+
+          const smallOrder = {
+            orderNumber: order.orderNumber,
+            user: {
+              id: order.user.id,
+              name: order.user.firstName,
+              email: order.user.email
+            },
+            status: order.shops[shopIndex].status,
+            deliverer: deliverer,
+            pickupTime: order.shops[shopIndex].pickupTime,
+            currency: order.currency,
+            productCount: order.shops[shopIndex].products.length,
+            updatedAt: order.updatedAt,
+            createdAt: order.createdAt,
+          }
+          smallOrders.push(smallOrder);
+        }
+
+        const filteredOrders = smallOrders.filter((order) => {
+          return order.status === status;
+        });
+
+        connection.socket.send(JSON.stringify(filteredOrders));
+      }, 3000);
+    } catch (error) {
+      console.log("Problem");
+      throw boom.boomify(error);
+    }
+  }
 }
