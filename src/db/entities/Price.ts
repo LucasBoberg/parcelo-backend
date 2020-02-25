@@ -14,10 +14,10 @@ export class Price {
   @Column()
   currency: string;
 
-  @ManyToOne(type => Shop, shop => shop.prices, { primary: true, nullable: false})
+  @ManyToOne(type => Shop, shop => shop.prices, { nullable: false})
   shop: Shop;
 
-  @ManyToOne(type => Product, product => product.prices, { primary: true, nullable: false})
+  @ManyToOne(type => Product, product => product.prices, { nullable: false})
   product: Product;
 
   @CreateDateColumn() 

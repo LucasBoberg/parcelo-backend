@@ -15,11 +15,33 @@ export default class CartsController {
     try {
       const id = request.params.id;
       const cartRepository = await getManager().getCustomRepository(CartRepository);
-      const cart = await cartRepository.findOneOrFail(id, { relations: ["products", "products.prices", "user"] });
+      const cart = await cartRepository.findOneOrFail(id, { relations: ["products", "products.prices", "products.prices.shop", "user"] });
 
       const smallProducts = [];
+      
 
       cart.products.forEach((product) => {
+        let completePrices = [];
+        if (product.prices.length > 0 && product.prices[0].price !== null) {
+          product.prices.forEach((priceInformation) => {
+            const priceObject = {
+              price: priceInformation.price,
+              currency: priceInformation.currency,
+              shop: {
+                id: priceInformation.shop.id,
+                slug: priceInformation.shop.slug,
+                name: priceInformation.shop.name,
+                description: priceInformation.shop.description,
+                type: priceInformation.shop.type,
+                logo: priceInformation.shop.logo
+              },
+              createdAt: priceInformation.createdAt,
+              updatedAt: priceInformation.updatedAt
+            }
+            completePrices.push(priceObject)
+          });
+        }
+
         const smallProduct = {
           id: product.id,
           slug: product.slug,
@@ -27,7 +49,7 @@ export default class CartsController {
           manufacturer: product.manufacturer,
           description: product.description,
           image: product.images[0],
-          prices: product.prices
+          prices: completePrices
         }
         smallProducts.push(smallProduct);
       });
