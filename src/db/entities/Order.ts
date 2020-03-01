@@ -8,7 +8,7 @@ import * as dictionary from "nanoid-dictionary/numbers";
 @Entity()
 export class Order {
   //@PrimaryGeneratedColumn("uuid")
-  @PrimaryColumn('varchar', { default: () => `'${generate(dictionary, 8)}'` })
+  @PrimaryColumn('varchar')
   orderNumber: number;
 
   @Column()

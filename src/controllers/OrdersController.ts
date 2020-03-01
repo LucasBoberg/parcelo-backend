@@ -13,6 +13,8 @@ import { AddressRepository } from "../db/repositories/AddressRepository";
 import { convertProduct } from '../Utils/product';
 import { convertShop } from '../Utils/shop';
 import { convertLocation } from '../Utils/geocoder';
+import * as generate from "nanoid/generate";
+import * as dictionary from "nanoid-dictionary/numbers";
 
 @Controller({ route: "/api/orders" })
 export default class OrdersController {
@@ -164,6 +166,7 @@ export default class OrdersController {
       const userPayload = await request.user.payload;
       const user = await userRepository.findOneOrFail(userPayload.id)
       const order = new Order();
+      order.orderNumber = generate(dictionary, 8);
       order.user = user;
       order.total = 0;
       order.currency = body.currency;
