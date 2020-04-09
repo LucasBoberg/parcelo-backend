@@ -31,6 +31,9 @@ export class User {
   @Column()
   lastName: string;
 
+  @Column({ default: false })
+  verified: boolean;
+
   @OneToOne(type => Cart, cart => cart.user)
   @JoinColumn()
   cart: Cart;

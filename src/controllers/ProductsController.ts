@@ -1,4 +1,4 @@
-import { Controller, GET, POST, PUT, DELETE } from 'fastify-decorators';
+import { Controller, GET, POST, PUT, DELETE, getInstanceByToken, FastifyInstanceToken } from 'fastify-decorators';
 import * as boom from "@hapi/boom";
 import { getManager } from "typeorm";
 import { validate } from "class-validator";
@@ -7,9 +7,13 @@ import { Category } from "../db/entities/Category";
 import { ProductRepository } from "../db/repositories/ProductRepository";
 import { CategoryRepository } from "../db/repositories/CategoryRepository";
 import slugify from "slugify";
+import { FastifyInstance } from 'fastify';
+import fastify = require('fastify');
 
 @Controller({ route: "/api/products" })
 export default class ProductsController {
+  private static instance = getInstanceByToken<FastifyInstance>(FastifyInstanceToken);
+
   @GET({ url: "/", options: { schema: { tags: ["product"] }}})
   async getProducts(request, reply) {
     try {
@@ -113,7 +117,7 @@ export default class ProductsController {
     }
   }
 
-  @POST({ url: "/", options: { schema: { 
+  @POST({ url: "/", options: { preValidation: [ProductsController.instance.authenticate, ProductsController.instance.isAdmin], schema: { 
     tags: ["product"],
     body: {
       type: "object",

@@ -6,6 +6,9 @@ import * as fastifyWebsocket from "fastify-websocket";
 import { join } from "path";
 import { swaggerOptions } from "./config/swagger";
 import auth from "./plugins/auth";
+import isAdmin from "./plugins/isAdmin";
+import isShopOwner from "./plugins/isShopOwner";
+import isDeliverer from "./plugins/isDeliverer";
 import schemas from "./plugins/schemas";
 import * as fastify from "fastify";
 import * as fastifySwagger from "fastify-swagger";
@@ -22,9 +25,13 @@ const bootstrapOptions = {
   mask: /\Controller\./
 };
 
+server.register(auth);
+server.register(isAdmin);
+server.register(isShopOwner);
+server.register(isDeliverer);
+
 server.register(fastifyHelmet);
 server.register(fastifySwagger, swaggerOptions);
-server.register(auth);
 server.register(schemas);
 server.register(fastifyWebsocket);
 server.register(bootstrap, bootstrapOptions);

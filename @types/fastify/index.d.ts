@@ -8,5 +8,7 @@ declare module "fastify" {
     HttpResponse = http.ServerResponse
   > {
     authenticate(): void;
+    isAdmin(): void;
   }
+  
 }

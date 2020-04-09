@@ -1,7 +1,7 @@
 import * as fp from "fastify-plugin"
 import * as boom from "@hapi/boom";
 
-export default fp((server, opts, next) => {
+export default fp(async (server, opts) => {
   server.register(require("fastify-jwt"), {
     secret: "randomSecretCodeStuff"
   });
@@ -12,6 +12,4 @@ export default fp((server, opts, next) => {
       throw boom.boomify(error);
     }
   });
-
-  next();
 });
