@@ -3,6 +3,11 @@
 ## Installation
 Steps to run this project:
 
+### Prerequisite
+- Have node installed
+- Have Postgresql installed
+- Have Meilisearch installed
+
 1. Run `npm i` command
 2. Setup database settings inside `ormconfig.json` file
 3. Run `npm run seed`
