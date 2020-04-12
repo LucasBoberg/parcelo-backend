@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import * as path from "path";
 import { createConnection } from "typeorm";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { bootstrap } from "fastify-decorators";
@@ -13,6 +14,8 @@ import schemas from "./plugins/schemas";
 import * as fastify from "fastify";
 import * as fastifySwagger from "fastify-swagger";
 import * as fastifyHelmet from "fastify-helmet";
+import fastifyMulter from "fastify-multer";
+import * as fastifyStatic from "fastify-static";
 
 const PORT = parseInt(process.env.PORT) || 3000;
 
@@ -31,9 +34,14 @@ server.register(isShopOwner);
 server.register(isDeliverer);
 
 server.register(fastifyHelmet);
+server.register(fastifyStatic, {
+  root: path.join(__dirname, "..", "uploads"),
+  prefix: "/uploads/"
+});
 server.register(fastifySwagger, swaggerOptions);
 server.register(schemas);
 server.register(fastifyWebsocket);
+server.register(fastifyMulter.contentParser);
 server.register(bootstrap, bootstrapOptions);
 
 createConnection().then(async connection => {

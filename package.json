@@ -12,9 +12,11 @@
       "seed": "node src/tasks/seed.ts"
    },
    "devDependencies": {
+      "@types/lodash": "^4.14.149",
       "@types/node": "^8.0.29",
       "@typescript-eslint/eslint-plugin": "^1.9.0",
       "@typescript-eslint/parser": "^1.9.0",
+      "@types/sharp": "^0.24.0",
       "eslint": "^5.16.0",
       "nodemon": "^1.19.1",
       "ts-node": "^8.4.1",
@@ -28,7 +30,9 @@
       "fastify-decorators": "^2.0.0-1",
       "fastify-helmet": "^3.0.1",
       "fastify-jwt": "^1.2.1",
+      "fastify-multer": "^1.5.2",
       "fastify-plugin": "^1.6.0",
+      "fastify-static": "^2.6.0",
       "fastify-swagger": "^2.4.0",
       "fastify-websocket": "^1.1.0",
       "lodash": "^4.17.15",
@@ -39,6 +43,7 @@
       "pino-pretty": "^3.2.2",
       "reflect-metadata": "^0.1.13",
       "set-interval-async": "^1.0.30",
+      "sharp": "^0.25.2",
       "slugify": "^1.3.5",
       "typeorm": "0.2.17"
    }
