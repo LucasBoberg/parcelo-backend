@@ -7,6 +7,7 @@ import * as fastifyWebsocket from "fastify-websocket";
 import { join } from "path";
 import { swaggerOptions } from "./config/swagger";
 import auth from "./plugins/auth";
+import search from "./plugins/meilisearch";
 import isAdmin from "./plugins/isAdmin";
 import isShopOwner from "./plugins/isShopOwner";
 import isDeliverer from "./plugins/isDeliverer";
@@ -32,7 +33,9 @@ server.register(auth);
 server.register(isAdmin);
 server.register(isShopOwner);
 server.register(isDeliverer);
-
+server.register(search, {
+  host: "http://127.0.0.1:7700"
+});
 server.register(fastifyHelmet);
 server.register(fastifyStatic, {
   root: path.join(__dirname, "..", "uploads"),

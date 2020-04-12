@@ -13,7 +13,7 @@ import { ProductRepository } from '../db/repositories/ProductRepository';
 export default class UserController {
   private static instance = getInstanceByToken<FastifyInstance>(FastifyInstanceToken);
 
-  @GET({ url: "/", options: { preValidation: [UserController.instance.authenticate], schema: { tags: ["user"] }}})
+  @GET({ url: "/", options: { preValidation: [UserController.instance.authenticate, UserController.instance.isAdmin], schema: { tags: ["user"] }}})
   async getUsers(request, reply) {
     try {
       const userRepository = await getManager().getCustomRepository(UserRepository);
@@ -61,7 +61,7 @@ export default class UserController {
       const body = request.body;
       const userRepository = await getManager().getCustomRepository(UserRepository);
   
-      const hashedPassword = await bcrypt.hash(body.password, 10)
+      const hashedPassword = await bcrypt.hash(body.password, 10);
   
       const user = new User();
       user.firstName = body.firstName;
@@ -117,6 +117,46 @@ export default class UserController {
         return reply.code(200).send({
           message: "Auth successful",
           token: token
+        });
+      } else {
+        return reply.code(401).send({
+          message: "Auth failed"
+        });
+      }
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @PUT({ url: "/changepassword", options: { preValidation: [UserController.instance.authenticate], schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "currentPassword": {
+          "type": "string"
+        },
+        "newPassword": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async changePassword(request, reply) {
+    try {
+      const body = request.body;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+  
+      const user: User = await userRepository.findOneOrFail(request.user.payload.id);
+  
+      const match = await bcrypt.compare(body.currentPassword, user.password);
+  
+      if (match) {
+        const hashedPassword = await bcrypt.hash(body.newPassword, 10)
+        await userRepository.update(user.id, { password: hashedPassword });
+
+        return reply.code(200).send({
+          message: "Password was changed"
         });
       } else {
         return reply.code(401).send({

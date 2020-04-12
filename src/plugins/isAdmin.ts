@@ -8,7 +8,7 @@ export default fp(async (server, opts, next) => {
       if (request.user.payload.role === UserRole.ADMIN) {
         return
       } else {
-        reply.code(401).send({
+        return reply.code(401).send({
           statusCode: 401,
           error: "Unauthorized",
           message: "You are not an admin"

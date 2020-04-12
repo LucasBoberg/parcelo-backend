@@ -142,7 +142,7 @@ export default class ProductsController {
     }
   }
 
-  @POST({ url: "/2", options: { 
+  @POST({ url: "/", options: { 
     preValidation: [ProductsController.instance.authenticate, ProductsController.instance.isAdmin],
     preHandler: upload.array("images", 8),
     schema: { 
@@ -211,7 +211,7 @@ export default class ProductsController {
           }
         }
       }}}})
-  async addProduct2(request, reply) {
+  async addProduct(request, reply) {
     try {
       const productRepository = await getManager().getCustomRepository(ProductRepository);
       const categoryRepository = await getManager().getCustomRepository(CategoryRepository);
@@ -229,6 +229,7 @@ export default class ProductsController {
 
       const categories = JSON.parse(body.categories);
       let createdCategories: Category[] = [];
+      const searchCategories: string[] = [];
   
       await categories.forEach((categoryInformation) => {
         const category = new Category();
@@ -237,6 +238,7 @@ export default class ProductsController {
         category.description = categoryInformation.description;
         categoryRepository.save(category)
         createdCategories.push(category);
+        searchCategories.push(category.name);
       });
   
       const product = new Product();
@@ -261,17 +263,20 @@ export default class ProductsController {
       if (errors.length > 0) {
         throw boom.boomify(new Error(errors.toString())); 
       } else {
-        //await productRepository.save(product);
+        const indexes = await ProductsController.instance.search.listIndexes();
+        console.log(indexes);
+        const savedProduct = await productRepository.save(product);
+        const searchIndex = await ProductsController.instance.search.getIndex("products");
+        const response = await searchIndex.addDocuments([{ id: savedProduct.id, slug: product.slug, name: product.name, manufacturer: product.manufacturer, description: product.description, categories: searchCategories.toString(), image: product.images[0] }]);
+        return savedProduct;
       }
-      
-      return product;
     } catch (error) {
       throw boom.boomify(error);
     }
   }
 
 
-  @POST({ url: "/", options: { preValidation: [ProductsController.instance.authenticate, ProductsController.instance.isAdmin], schema: { 
+  @POST({ url: "/old", options: { preValidation: [ProductsController.instance.authenticate, ProductsController.instance.isAdmin], schema: { 
     tags: ["product"],
     body: {
       type: "object",
@@ -338,7 +343,7 @@ export default class ProductsController {
         }
       }
     }}}})
-  async addProduct(request, reply) {
+  async addProductOld(request, reply) {
     try {
       const productRepository = await getManager().getCustomRepository(ProductRepository);
       const categoryRepository = await getManager().getCustomRepository(CategoryRepository);

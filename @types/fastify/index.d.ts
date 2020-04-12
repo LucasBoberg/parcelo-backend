@@ -1,5 +1,6 @@
 import * as fastify from "fastify";
 import * as http from "http";
+import Meili from "meilisearch";
 
 declare module "fastify" {
   export interface FastifyInstance<
@@ -9,6 +10,7 @@ declare module "fastify" {
   > {
     authenticate(): void;
     isAdmin(): void;
+    search: Meili;
   }
   
 }
