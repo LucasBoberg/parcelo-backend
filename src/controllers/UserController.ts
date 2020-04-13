@@ -8,6 +8,7 @@ import { User } from "../db/entities/User";
 import { UserRepository } from "../db/repositories/UserRepository";
 import { AddressRepository } from "../db/repositories/AddressRepository";
 import { ProductRepository } from '../db/repositories/ProductRepository';
+import * as jwt from 'jsonwebtoken';
 
 @Controller({ route: "/api/users" })
 export default class UserController {
@@ -221,6 +222,87 @@ export default class UserController {
           message: "Auth failed"
         });
       }
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @POST({ url: "/resetpassword", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async sendPasswordResetEmail(request, reply) {
+    try {
+      const email = request.body.email;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const user = await userRepository.findByEmail(email);
+      
+      if (user) {
+        const secret = user.password + "-" + user.createdAt;
+        const token = jwt.sign({ email: user.email, id: user.id }, secret, { expiresIn: "1h" });
+        const address = "http://localhost:3000/api/users/newpassword/" + token;
+        const info = await UserController.instance.nodemailer.sendMail({
+          from: "Parcelo <no-reply@parcelo.se>",
+          to: email,
+          subject: "Requested a password reset",
+          html: `<a href="${address}">${address}</a>`
+        });
+
+        return reply.send({
+          message: "Check inbox for reset password email",
+        });
+      } else {
+        return reply.send({
+          message: "Email not in use",
+        });
+      }
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @PUT({ url: "/newpassword", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async newPassword(request, reply) {
+    try {
+      const token = request.body.token;
+      const password = request.body.password
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+
+      interface userPayload {
+        email: string,
+        id: string
+      }
+
+      const payload: userPayload = UserController.instance.jwt.decode(token);
+      const user: User = await userRepository.findOneOrFail(payload.id);
+      const secret = user.password + "-" + user.createdAt;
+      const decoded = jwt.verify(token, secret);
+      const hashedPassword = await bcrypt.hash(password, 10)
+      await userRepository.update(user.id, { password: hashedPassword });
+
+      return reply.code(200).send({
+        message: "Password was changed"
+      });
     } catch (error) {
       throw boom.boomify(error);
     }
