@@ -14,6 +14,7 @@ import isDeliverer from "./plugins/isDeliverer";
 import schemas from "./plugins/schemas";
 import * as fastify from "fastify";
 import * as fastifySwagger from "fastify-swagger";
+import * as fastifyNodemailer from "fastify-nodemailer";
 import * as fastifyHelmet from "fastify-helmet";
 import fastifyMulter from "fastify-multer";
 import * as fastifyStatic from "fastify-static";
@@ -35,6 +36,15 @@ server.register(isShopOwner);
 server.register(isDeliverer);
 server.register(search, {
   host: "http://127.0.0.1:7700"
+});
+server.register(fastifyNodemailer, {
+  host: "ns3.inleed.net",
+  port: 465,
+  secure: true,
+  auth: {
+    user: "info@parcelo.se",
+    pass: "QrSJWUjOu24iw30K"
+  }
 });
 server.register(fastifyHelmet);
 server.register(fastifyStatic, {

@@ -1,6 +1,7 @@
 import * as fastify from "fastify";
 import * as http from "http";
 import Meili from "meilisearch";
+import { Transporter } from "nodemailer";
 
 declare module "fastify" {
   export interface FastifyInstance<
@@ -11,6 +12,7 @@ declare module "fastify" {
     authenticate(): void;
     isAdmin(): void;
     search: Meili;
+    nodemailer: Transporter;
   }
   
 }

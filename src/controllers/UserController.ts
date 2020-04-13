@@ -168,6 +168,26 @@ export default class UserController {
     }
   }
 
+  @POST({ url: "/send" })
+  async sendEmail(request, reply) {
+    try {
+
+      const info = await UserController.instance.nodemailer.sendMail({
+        from: "Parcelo <info@parcelo.se>",
+        to: request.body.email,
+        subject: "Test Mail",
+        text: "Hello " + request.body.email + "!"
+      });
+
+      return reply.send({
+        message: "Email sent successfully",
+        messageId: info.messageId
+      })
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
   @POST({ url: "/:id/addresses", options: { schema: { 
     tags: ["user"],
     body: {
