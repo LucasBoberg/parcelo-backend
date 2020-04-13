@@ -5,13 +5,13 @@ import { UserRole } from "../Utils/user";
 export default fp(async (server, opts, next) => {
   server.decorate("isAdmin", async (request, reply) => {
     try {
-      if (request.user.payload.role === UserRole.ADMIN) {
+      if (request.user.payload.verifiedEmail === true) {
         return
       } else {
         return reply.code(401).send({
           statusCode: 403,
           error: "Forbidden",
-          message: "You are not an admin"
+          message: "You need to verify your email"
         });
       }
       

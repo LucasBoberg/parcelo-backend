@@ -42,8 +42,8 @@ server.register(fastifyNodemailer, {
   port: 465,
   secure: true,
   auth: {
-    user: "info@parcelo.se",
-    pass: "QrSJWUjOu24iw30K"
+    user: "no-reply@parcelo.se",
+    pass: "AagC3SNz1ioom1P8"
   }
 });
 server.register(fastifyHelmet);

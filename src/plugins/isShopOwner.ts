@@ -9,8 +9,8 @@ export default fp(async (server, opts, next) => {
         return
       } else {
         return reply.code(401).send({
-          statusCode: 401,
-          error: "Unauthorized",
+          statusCode: 403,
+          error: "Forbidden",
           message: "You are not a shop owner"
         });
       }

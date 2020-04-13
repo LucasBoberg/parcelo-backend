@@ -75,9 +75,106 @@ export default class UserController {
         throw boom.boomify(new Error(errors.toString())); 
       } else {
         await userRepository.save(user);
+        const token = UserController.instance.jwt.sign({ email: user.email, firstName: user.firstName, lastName: user.lastName }, { expiresIn: "2h" });
+        const address = "http://localhost:3000/api/users/verifyemail/" + token;
+        const info = await UserController.instance.nodemailer.sendMail({
+          from: "Parcelo <no-reply@parcelo.se>",
+          to: request.body.email,
+          subject: "Verify Email",
+          text: "Hello " + user.firstName + "," + " verify your email by pressing the link bellow.",
+          html: `<a href="${address}">${address}</a>`
+        });
+  
+        return reply.send({
+          message: "User signed up successfully, check inbox for verification email",
+          user: user,
+          messageId: info.messageId
+        });
+      }
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @POST({ url: "/verifyemail", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async verifyEmail(request, reply) {
+    try {
+      const token = request.body.token;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+
+      interface userPayload {
+        email: string,
+        firstName: string,
+        lastName: string,
+        iat: number,
+        exp: number
       }
 
-      return user;
+      const decoded: userPayload = UserController.instance.jwt.verify(token);
+      const user = await userRepository.findByEmail(decoded.email);
+      
+      if (!user.verifiedEmail) {
+        await userRepository.update(user.id, { verifiedEmail: true });
+
+        return reply.send({
+          message: "User Verified",
+        })
+      } else {
+        return reply.send({
+          message: "User is already verified",
+        })
+      }
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @POST({ url: "/request/verifyemail", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async requestVerifyEmail(request, reply) {
+    try {
+      const email = request.body.email;
+      const userRepository = await getManager().getCustomRepository(UserRepository);
+      const user = await userRepository.findByEmail(email);
+      
+      if (user) {
+        const token = UserController.instance.jwt.sign({ email: user.email, firstName: user.firstName, lastName: user.lastName }, { expiresIn: "2h" });
+        const address = "http://localhost:3000/api/users/verifyemail/" + token;
+        const info = await UserController.instance.nodemailer.sendMail({
+          from: "Parcelo <no-reply@parcelo.se>",
+          to: email,
+          subject: "Verify Email",
+          text: "Hello " + user.firstName + "," + " verify your email by pressing the link bellow.",
+          html: `<a href="${address}">${address}</a>`
+        });
+
+        return reply.send({
+          message: "Check inbox for verification email",
+        });
+      } else {
+        return reply.send({
+          message: "Email not in use",
+        });
+      }
     } catch (error) {
       throw boom.boomify(error);
     }
@@ -111,9 +208,10 @@ export default class UserController {
         const payload = {
           id: user.id,
           role: user.role,
-          email: user.email
+          email: user.email,
+          verifiedEmail: user.verifiedEmail
         }
-        const token = await reply.jwtSign({ payload });
+        const token = await UserController.instance.jwt.sign(payload, { expiresIn: "2d"});
         return reply.code(200).send({
           message: "Auth successful",
           token: token
@@ -173,7 +271,7 @@ export default class UserController {
     try {
 
       const info = await UserController.instance.nodemailer.sendMail({
-        from: "Parcelo <info@parcelo.se>",
+        from: "Parcelo <no-reply@parcelo.se>",
         to: request.body.email,
         subject: "Test Mail",
         text: "Hello " + request.body.email + "!"

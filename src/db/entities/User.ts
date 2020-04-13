@@ -32,7 +32,7 @@ export class User {
   lastName: string;
 
   @Column({ default: false })
-  verified: boolean;
+  verifiedEmail: boolean;
 
   @OneToOne(type => Cart, cart => cart.user)
   @JoinColumn()
