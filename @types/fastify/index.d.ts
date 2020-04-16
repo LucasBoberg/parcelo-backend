@@ -2,7 +2,8 @@ import * as fastify from "fastify";
 import * as http from "http";
 import Meili from "meilisearch";
 import { Transporter } from "nodemailer";
-import * as jwt from 'jsonwebtoken';
+import * as jwt from "jsonwebtoken";
+import { Redis } from "ioredis"
 
 declare module "fastify" {
   namespace JWTTypes {
@@ -50,6 +51,7 @@ declare module "fastify" {
     search: Meili;
     nodemailer: Transporter;
     jwt: JWT;
+    redis: Redis;
   }
   
 }

@@ -3,7 +3,7 @@ import * as boom from "@hapi/boom";
 
 export default fp(async (server, opts) => {
   server.register(require("fastify-jwt"), {
-    secret: "randomSecretCodeStuff"
+    secret: process.env.ACCESS_TOKEN_SECRET
   });
   server.decorate("authenticate", async (request, reply) => {
     try {

@@ -12,6 +12,7 @@
       "seed": "node src/tasks/seed.ts"
    },
    "devDependencies": {
+      "@types/ioredis": "^4.14.9",
       "@types/lodash": "^4.14.149",
       "@types/node": "^8.0.29",
       "@types/nodemailer": "^6.4.0",
@@ -34,6 +35,7 @@
       "fastify-multer": "^1.5.2",
       "fastify-nodemailer": "^4.1.1",
       "fastify-plugin": "^1.6.0",
+      "fastify-redis": "^3.1.1",
       "fastify-static": "^2.6.0",
       "fastify-swagger": "^2.4.0",
       "fastify-websocket": "^1.1.0",

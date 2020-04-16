@@ -5,7 +5,7 @@ import { UserRole } from "../Utils/user";
 export default fp(async (server, opts, next) => {
   server.decorate("isDeliverer", async (request, reply) => {
     try {
-      if (request.user.payload.role === UserRole.DELIVERER) {
+      if (request.user.role === UserRole.DELIVERER) {
         return
       } else {
         return reply.code(401).send({

@@ -9,6 +9,7 @@ import { UserRepository } from "../db/repositories/UserRepository";
 import { AddressRepository } from "../db/repositories/AddressRepository";
 import { ProductRepository } from '../db/repositories/ProductRepository';
 import * as jwt from 'jsonwebtoken';
+import { userPayload } from '../Utils/user';
 
 @Controller({ route: "/api/users" })
 export default class UserController {
@@ -113,7 +114,7 @@ export default class UserController {
       const token = request.body.token;
       const userRepository = await getManager().getCustomRepository(UserRepository);
 
-      interface userPayload {
+      interface userPayloadMedium {
         email: string,
         firstName: string,
         lastName: string,
@@ -121,7 +122,7 @@ export default class UserController {
         exp: number
       }
 
-      const decoded: userPayload = UserController.instance.jwt.verify(token);
+      const decoded: userPayloadMedium = UserController.instance.jwt.verify(token);
       const user = await userRepository.findByEmail(decoded.email);
       
       if (!user.verifiedEmail) {
@@ -212,16 +213,94 @@ export default class UserController {
           email: user.email,
           verifiedEmail: user.verifiedEmail
         }
-        const token = await UserController.instance.jwt.sign(payload, { expiresIn: "2d"});
+        const token = await UserController.instance.jwt.sign(payload, { expiresIn: "15m"});
+        const refreshToken = await jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
         return reply.code(200).send({
           message: "Auth successful",
-          token: token
+          accessToken: token,
+          refreshToken: refreshToken
         });
       } else {
         return reply.code(401).send({
           message: "Auth failed"
         });
       }
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+  @POST({ url: "/refreshtoken", options: { schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async generateRefreshToken(request, reply) {
+    try {
+      const body = request.body;
+      const refreshToken = body.refreshToken;
+
+      const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+      const decodedPayload = (decoded as userPayload);
+
+      const member = await UserController.instance.redis.sismember(decodedPayload.id, refreshToken);
+      console.log(member);
+      if (!member) {
+        const payload = {
+          id: decodedPayload.id,
+          role: decodedPayload.role,
+          email: decodedPayload.email,
+          verifiedEmail: decodedPayload.verifiedEmail
+        }
+        const newToken = await UserController.instance.jwt.sign(payload, { expiresIn: "15m"});
+        const newRefreshToken = await jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+        return reply.code(200).send({
+          message: "Auth successful",
+          accessToken: newToken,
+          refreshToken: newRefreshToken
+        });
+      } else {
+        return reply.code(401).send({
+          message: "Auth failed"
+        });
+      }
+      
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
+
+  @DELETE({ url: "/signout", options: { preValidation: [UserController.instance.authenticate], schema: { 
+    tags: ["user"],
+    body: {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    }
+  }}})
+  async signOut(request, reply) {
+    try {
+      const refreshToken = request.body.refreshToken;
+
+      const decoded = jwt.decode(refreshToken);
+      const decodedPayload = (decoded as userPayload);
+
+      await UserController.instance.redis.sadd(decodedPayload.id, refreshToken);
+      await UserController.instance.redis.expireat(decodedPayload.id, decodedPayload.exp);
+      
+      return reply.code(200).send({
+        message: "Sign out successful"
+      });
     } catch (error) {
       throw boom.boomify(error);
     }
@@ -288,12 +367,12 @@ export default class UserController {
       const password = request.body.password
       const userRepository = await getManager().getCustomRepository(UserRepository);
 
-      interface userPayload {
+      interface userPayloadSmall {
         email: string,
         id: string
       }
 
-      const payload: userPayload = UserController.instance.jwt.decode(token);
+      const payload: userPayloadSmall = UserController.instance.jwt.decode(token);
       const user: User = await userRepository.findOneOrFail(payload.id);
       const secret = user.password + "-" + user.createdAt;
       const decoded = jwt.verify(token, secret);

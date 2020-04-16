@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
 import "reflect-metadata";
 import * as path from "path";
 import { createConnection } from "typeorm";
@@ -13,6 +17,7 @@ import isShopOwner from "./plugins/isShopOwner";
 import isDeliverer from "./plugins/isDeliverer";
 import schemas from "./plugins/schemas";
 import * as fastify from "fastify";
+import * as fastifyRedis from "fastify-redis";
 import * as fastifySwagger from "fastify-swagger";
 import * as fastifyNodemailer from "fastify-nodemailer";
 import * as fastifyHelmet from "fastify-helmet";
@@ -34,16 +39,19 @@ server.register(auth);
 server.register(isAdmin);
 server.register(isShopOwner);
 server.register(isDeliverer);
+server.register(fastifyRedis, {
+  host: process.env.REDIS_HOST
+});
 server.register(search, {
-  host: "http://127.0.0.1:7700"
+  host: process.env.MEILISEARCH_HOST
 });
 server.register(fastifyNodemailer, {
-  host: "ns3.inleed.net",
+  host: process.env.MAIL_HOST,
   port: 465,
   secure: true,
   auth: {
-    user: "no-reply@parcelo.se",
-    pass: "AagC3SNz1ioom1P8"
+    user: process.env.MAIL_EMAIL,
+    pass: process.env.MAIL_PASSWORD
   }
 });
 server.register(fastifyHelmet);
