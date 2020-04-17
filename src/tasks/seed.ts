@@ -17,6 +17,7 @@ const MeiliSearch = require("meilisearch");
   console.log("PG connection closed.");
   console.log("Finished dbseed task.");
 
+  // Set up Meilisearch with index
   const client = new MeiliSearch({
     host: "http://127.0.0.1:7700"
   });

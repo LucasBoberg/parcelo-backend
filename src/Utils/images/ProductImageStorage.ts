@@ -42,11 +42,14 @@ class ProductImageStorage implements StorageEngine {
 
         const finalFilename = filename! + ".jpeg"
         const finalPath = join(destination, finalFilename);
-        const finalPath2 = join(destination, filename.replace(extname(filename), "") + "-small.jpeg");
+        const finalPath2 = join(destination, filename.replace(extname(filename), "") + "-medium.jpeg");
+        const finalPath3 = join(destination, filename.replace(extname(filename), "") + "-small.jpeg");
         const outStream = fs.createWriteStream(finalPath)
         const outStream2 = fs.createWriteStream(finalPath2);
-        const resizer = sharp().jpeg({ quality: 100 });
-        resizer.clone().resize(400, 200).pipe(outStream2);
+        const outStream3 = fs.createWriteStream(finalPath3);
+        const resizer = sharp().resize(1000, 1250).jpeg({ quality: 100 });
+        resizer.clone().resize(700, 875).pipe(outStream2);
+        resizer.clone().resize(200, 250).pipe(outStream3);
     
         file.stream.pipe(resizer).pipe(outStream);
         outStream.on('error', cb)

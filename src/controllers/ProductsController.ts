@@ -39,14 +39,20 @@ const upload = multer({ storage: storage, fileFilter: function(request, file, cb
 export default class ProductsController {
   private static instance = getInstanceByToken<FastifyInstance>(FastifyInstanceToken);
 
-  @GET({ url: "/", options: { schema: { tags: ["product"] }}})
+  @GET({ url: "/", options: { schema: { tags: ["product"], querystring: { imageSize: { type: "string" } } }}})
   async getProducts(request, reply) {
     try {
+      const imageSize = request.query.imageSize;
+      
       const productRepository = await getManager().getCustomRepository(ProductRepository);
       const products = await productRepository.find({ relations: ["categories", "prices", "reviews", "prices.shop"] });
       const smallProducts = [];
 
       products.forEach((product) => {
+        let image = product.images[0]
+        if (imageSize) {
+          image = product.images[0].replace(path.extname(product.images[0]), "") + "-" + imageSize + path.extname(product.images[0]);
+        }
         const smallProduct = {
           id: product.id,
           slug: product.slug,
@@ -54,7 +60,7 @@ export default class ProductsController {
           manufacturer: product.manufacturer,
           description: product.description,
           color: product.color,
-          image: product.images[0],
+          image: image,
           categories: product.categories,
           prices: product.prices,
           reviews: product.reviews,
@@ -71,14 +77,22 @@ export default class ProductsController {
     }
   }
 
-  @GET({ url: "/:id", options: { schema: { tags: ["product"] }}})
+  @GET({ url: "/:id", options: { schema: { tags: ["product"], querystring: { imageSize: { type: "string" } }}}})
   async getSingleProduct(request, reply) {
     try {
+      const imageSize = request.query.imageSize;
       const id = request.params.id;
       const productRepository = await getManager().getCustomRepository(ProductRepository);
       const product = await productRepository.findOneOrFail(id, { relations: ["categories", "prices", "prices.shop", "reviews"] });
       const productAlternatives = await productRepository.findByIds(product.alternatives, { select: ["id", "slug", "name", "manufacturer", "description", "images"] });
       
+      let images = product.images;
+      if (imageSize) {
+        images = product.images.map((image) => {
+          return image.replace(path.extname(image), "") + "-" + imageSize + path.extname(image);
+        });
+      }
+
       let completePrices = [];
       if (product.prices.length > 0 && product.prices[0].price !== null) {
         await product.prices.forEach((priceInformation) => {
@@ -112,7 +126,7 @@ export default class ProductsController {
         height: product.height,
         depth: product.depth,
         weight: product.weight,
-        images: product.images,
+        images: images,
         details: product.details,
         alternatives: productAlternatives,
         categories: product.categories,
